@@ -1,49 +1,37 @@
 #!/bin/bash
-
-usage()
-{
-	echo "usage: $0 [0/1/2]";
-	echo "0: M6708U-512LI-T"
-	echo "1: M6708U-1GLI-T"
-	echo "2: M6708Q-1GLC-T"
-	echo "3: clean"
-	exit 1;
-}
-
 export ARCH=arm
 export CROSS_COMPILE=/opt/poky/1.7/sysroots/x86_64-pokysdk-linux/usr/bin/arm-poky-linux-gnueabi/arm-poky-linux-gnueabi-
 
-if [ $# != 1 ]; then
-	usage;
+build_uboot(){
+    make distclean
+    rm $OBJ -f
+    make $CONFIG
+    make -j8 && cp u-boot.imx $OBJ
+    cp $OBJ .. -f
+}
 
-elif [ $1 == "0" ]; then
+if [ $1 == "clean" ]; then
+     make distclean
+     rm u-boot-M6708U-512LI.imx u-boot-M6708U-1GLI.imx u-boot-M6708Q-1GLI.imx -f
+     exit 0 
+else
 	echo "build M6708U-512LI-T u-boot.imx"
 	sed -i "s/MX6DL,DEFAULT_FDT_FILE=\"imx6dl-sabresd.dtb\",DDR_MB=1024,SYS_USE_SPINOR /MX6DL,DEFAULT_FDT_FILE=\"imx6dl-sabresd.dtb\",DDR_MB=512,SYS_USE_SPINOR /g" boards.cfg
 	CONFIG=mx6dlsabresd_config
 	OBJ=u-boot-M6708U-512LI.imx
+	build_uboot
 
-elif [ $1 == "1" ]; then
 	echo "build M6708U-1GLI-T u-boot.imx";
 	sed -i "s/MX6DL,DEFAULT_FDT_FILE=\"imx6dl-sabresd.dtb\",DDR_MB=512,SYS_USE_SPINOR /MX6DL,DEFAULT_FDT_FILE=\"imx6dl-sabresd.dtb\",DDR_MB=1024,SYS_USE_SPINOR /g" boards.cfg
 	CONFIG=mx6dlsabresd_config
 	OBJ=u-boot-M6708U-1GLI.imx
+	build_uboot
 
-elif [ $1 == "2" ]; then
 	echo "build M6708Q-1GLI-T u-boot.imx"
 	CONFIG=mx6qsabresd_config
 	OBJ=u-boot-M6708Q-1GLI.imx
+	build_uboot
 
-elif [ $1 == "3" ]; then
-	make distclean
-	rm u-boot-M6708U-512LI.imx u-boot-M6708U-1GLI.imx u-boot-M6708Q-1GLI.imx -f
-	exit 0
-
-else
-	usage;
+    mv ../u-boot-M6708U-512LI.imx ../u-boot-M6708U-1GLI.imx ../u-boot-M6708Q-1GLI.imx . -f
 fi
-
-make distclean
-rm $OBJ -f
-make $CONFIG
-make -j8 && cp u-boot.imx /nfsroot; cp u-boot.imx $OBJ
 
