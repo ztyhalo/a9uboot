@@ -10,7 +10,7 @@ build_uboot(){
     cp $OBJ .. -f
 }
 
-if [ $1 == "clean" ]; then
+if [[ $1 == "clean" ]]; then
      make distclean
      rm u-boot-M6708U-512LI.imx u-boot-M6708U-1GLI.imx u-boot-M6708Q-1GLI.imx -f
      exit 0 
