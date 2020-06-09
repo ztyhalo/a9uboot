@@ -45,7 +45,7 @@ struct scu_regs {
 	u32	fpga_rev;
 };
 
-#define TEMPERATURE_MIN		-40
+#define TEMPERATURE_MIN		-55
 #define TEMPERATURE_HOT		80
 #define TEMPERATURE_MAX		125
 #define FACTOR1			15976
@@ -342,8 +342,9 @@ static int read_cpu_temperature(void)
 void check_cpu_temperature(void)
 {
 	int cpu_tmp = 0;
-
+    printf("check cpu temperature...\n");
 	cpu_tmp = read_cpu_temperature();
+	printf("CPU is %d C\n",cpu_tmp);
 	while (cpu_tmp > TEMPERATURE_MIN && cpu_tmp < TEMPERATURE_MAX) {
 		if (cpu_tmp >= TEMPERATURE_HOT) {
 			printf("CPU is %d C, too hot to boot, waiting...\n",
