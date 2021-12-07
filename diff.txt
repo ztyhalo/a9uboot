@@ -1,0 +1,59 @@
+diff --git a/board/freescale/mx6sabresd/mx6sabresd.c b/board/freescale/mx6sabresd/mx6sabresd.c
+index b571658..65d65c7 100644
+--- a/board/freescale/mx6sabresd/mx6sabresd.c
++++ b/board/freescale/mx6sabresd/mx6sabresd.c
+@@ -175,8 +175,12 @@ int dram_init(void)
+ }
+ 
+ iomux_v3_cfg_t const uart1_pads[] = {
+-	MX6_PAD_SD3_DAT7__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+-	MX6_PAD_SD3_DAT6__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
++	//MX6_PAD_SD3_DAT7__UART1_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
++	//MX6_PAD_SD3_DAT6__UART1_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
++	//MX6_PAD_KEY_ROW0__UART4_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
++	//MX6_PAD_KEY_COL0__UART4_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
++    MX6_PAD_EIM_D24__UART3_TX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
++    MX6_PAD_EIM_D25__UART3_RX_DATA | MUX_PAD_CTRL(UART_PAD_CTRL),
+ };
+ 
+ iomux_v3_cfg_t const uart2_pads[] = {
+@@ -272,9 +276,9 @@ iomux_v3_cfg_t const usdhc4_pads[] = {
+ 
+ #ifdef CONFIG_SYS_USE_SPINOR
+ iomux_v3_cfg_t const ecspi1_pads[] = {
+-	MX6_PAD_KEY_COL0__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
++//	MX6_PAD_KEY_COL0__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
+ 	MX6_PAD_KEY_COL1__ECSPI1_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),
+-	MX6_PAD_KEY_ROW0__ECSPI1_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
++//	MX6_PAD_KEY_ROW0__ECSPI1_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
+ 	MX6_PAD_KEY_ROW1__GPIO4_IO09 | MUX_PAD_CTRL(NO_PAD_CTRL),
+ };
+ 
+diff --git a/include/configs/mx6sabre_common.h b/include/configs/mx6sabre_common.h
+index c5fdb7f..6c995a4 100644
+--- a/include/configs/mx6sabre_common.h
++++ b/include/configs/mx6sabre_common.h
+@@ -83,7 +83,7 @@
+ 
+ /* allow to overwrite serial and ethaddr */
+ #define CONFIG_ENV_OVERWRITE
+-#define CONFIG_CONS_INDEX              1
++#define CONFIG_CONS_INDEX              3
+ #define CONFIG_BAUDRATE                        115200
+ 
+ /* Command definition */
+diff --git a/include/configs/mx6sabresd.h b/include/configs/mx6sabresd.h
+index 036d893..ca306a8 100644
+--- a/include/configs/mx6sabresd.h
++++ b/include/configs/mx6sabresd.h
+@@ -13,8 +13,8 @@
+ #include <asm/imx-common/gpio.h>
+ 
+ #define CONFIG_MACH_TYPE	3980
+-#define CONFIG_MXC_UART_BASE	UART1_BASE
+-#define CONFIG_CONSOLE_DEV		"ttymxc0"
++#define CONFIG_MXC_UART_BASE	UART3_BASE
++#define CONFIG_CONSOLE_DEV		"ttymxc2"
+ #define CONFIG_MMCROOT			"/dev/mmcblk2p2"  /* SDHC3 */
+ 
+ #include "mx6sabre_common.h"

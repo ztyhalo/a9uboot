@@ -27,11 +27,11 @@ else
 	OBJ=u-boot-M6708U-1GLI.imx
 	build_uboot
 
-	echo "build M6708Q-1GLI-T u-boot.imx"
+	echo "build M6708Q-1GLI-T/M6708Q-1GLC-T u-boot.imx"
 	CONFIG=mx6qsabresd_config
-	OBJ=u-boot-M6708Q-1GLI.imx
+	OBJ=u-boot-M6708Q-1GLC.imx
 	build_uboot
 
-    mv ../u-boot-M6708U-512LI.imx ../u-boot-M6708U-1GLI.imx ../u-boot-M6708Q-1GLI.imx . -f
+    mv ../u-boot-M6708U-512LI.imx ../u-boot-M6708U-1GLI.imx ../u-boot-M6708Q-1GLC.imx . -f
 fi
 
