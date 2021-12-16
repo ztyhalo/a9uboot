@@ -100,6 +100,7 @@ char *getenv_default(const char *name)
 void set_default_env(const char *s)
 {
 	int flags = 0;
+	char * tmp;
 
 	if (sizeof(default_environment) > ENV_SIZE) {
 		puts("*** Error - default environment is too large\n\n");
@@ -125,6 +126,16 @@ void set_default_env(const char *s)
 		error("Environment import failed: errno = %d\n", errno);
 
 	gd->flags |= GD_FLG_ENV_READY;
+	
+	tmp = getenv("mmcroot");
+	if(tmp != NULL)
+		printf("zty mmcroot %s!\n", tmp);
+	
+	
+	tmp = getenv("mmcdev");
+	if(tmp != NULL)
+		printf("zty mmcdev %s!\n", tmp);
+
 }
 
 
@@ -154,6 +165,7 @@ int env_import(const char *buf, int check)
 		memcpy(&crc, &ep->crc, sizeof(crc));
 
 		if (crc32(0, ep->data, ENV_SIZE) != crc) {
+//			printf("zty env import!\n");
 			set_default_env("!bad CRC");
 			return 0;
 		}

@@ -26,7 +26,9 @@ void imx6_usbupdate(void)
 	char *rsargs;
 	char *tmp = NULL;
 	char ka[16];
-	char * const argv[3] = { "bootm", ka, NULL };
+	char fs[16];
+	char dtb[16];
+	char * const argv[5] = { "bootz", ka,fs,dtb, NULL };
 
 	/* Check if rescue system is disabled... */
 	if (getenv("norescue")) {
@@ -38,14 +40,29 @@ void imx6_usbupdate(void)
 	if (load_rescue_image(MD5_LOAD_ADDR))
 		return;
 
-//	bcmd = find_cmd("bootm");
-//	if (!bcmd)
-//		return;
-//
-//	sprintf(ka, "%lx", (ulong)LOAD_ADDR);
-//
-//	/* prepare our bootargs */
-//	rsargs = getenv("rs-args");
+	bcmd = find_cmd("bootz");
+	if (!bcmd)
+		return;
+
+	sprintf(ka, "%lx", (ulong)KERNEL_LOAD_ADDR);
+	sprintf(fs, "%lx", (ulong)FS_LOAD_ADDR);
+	sprintf(dtb, "%lx", (ulong)DTB_LOAD_ADDR);
+
+	/* prepare our bootargs */
+
+
+	tmp = malloc(strlen(IMX_BOOTARGS)+1);
+	if (!tmp) {
+		printf(LOG_PREFIX "Memory allocation failed\n");
+		return;
+	}
+	sprintf(tmp, "%s", IMX_BOOTARGS);
+	
+	setenv("bootargs", tmp);
+//	free(tmp);
+	printf(LOG_PREFIX "Starting update system (bootargs=%s)...\n", tmp);
+	do_bootz(bcmd, 0, 4, argv);
+	
 //	if (!rsargs)
 //		rsargs = RS_BOOTARGS;
 //	else {
@@ -70,17 +87,24 @@ void imx6_usbupdate(void)
 static int load_rescue_image(ulong addr)
 {
 	disk_partition_t info;
+	int size ;
+	int size1;
 	int devno;
 	int partno;
 	int i;
 	char fwdir[64];
+	char md5[64];
 	char nxri[128];
 	char *tmp;
 	char dev[7];
+	char dev1[7];
 	char addr_str[16];
 	char * const argv[6] = { "fatload", "usb", dev, addr_str, nxri, NULL };
+	char * const argv1[6] = { "fatload", "mmc", dev1, addr_str, nxri, NULL };
 	block_dev_desc_t *stor_dev = NULL;
 	cmd_tbl_t *bcmd;
+	int updatemark = 0;
+	
 
 	/* Get name of firmware directory */
 	//tmp = getenv("fw-dir");
@@ -114,10 +138,11 @@ static int load_rescue_image(ulong addr)
 	}
 
 	/* Detect partition */
+      /*
 	for (partno = -1, i = 0; i < 6; i++) {
 		if (get_partition_info(stor_dev, i, &info) == 0) {
 			if (fat_register_device(stor_dev, i) == 0) {
-				/* Check if rescue image is present */
+				// Check if rescue image is present 
 				USB_DEBUG("Looking for firmware directory '%s'"
 					" on partition %d\n", fwdir, i);
 				if (do_fat_read(fwdir, NULL, 0, LS_NO) == -1) {
@@ -152,6 +177,7 @@ static int load_rescue_image(ulong addr)
 		return 1;
 	}
 
+	*/
 	/* Load the rescue image */
 	bcmd = find_cmd("fatload");
 	if (!bcmd) {
@@ -162,7 +188,8 @@ static int load_rescue_image(ulong addr)
 
 	//tmp = getenv("nx-rescue-image");
 	sprintf(nxri, "%s", MD5_FILE_NAME);
-	sprintf(dev, "%d:%d", devno, partno);
+	//sprintf(dev, "%d:%d", devno, partno);
+	sprintf(dev, "%d", devno);
 	sprintf(addr_str, "%lx", addr);
 
 	USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
@@ -173,9 +200,88 @@ static int load_rescue_image(ulong addr)
 		return 1;
 	}
 	else
-		USB_DEBUG("usb read veriosn ok\n");
+	{
+		size = getenv_hex("filesize", 0);
+		USB_DEBUG("usb read veriosn ok %d\n",size);
+		memcpy(fwdir, (void *)addr, size);
+		for(i= 0; i < size; i++)
+		{
+			printf("%c ", fwdir[i]);
+		}
+		printf("\n");
+		
+		//
+		bcmd = find_cmd("ext4load");
+		if (!bcmd) {
+			printf(LOG_PREFIX "Error - 'ext4load' command not present.\n");
+			usb_stop();
+			return 1;
+		}
+		sprintf(nxri, "%s", MD5_FILE_NAME1);
+		sprintf(dev1, "%d:%d", MD5_MMC_DEV, MD5_MMC_DEV_PART);
+		sprintf(addr_str, "%lx", MD5_LOAD_ADDR1);
+			USB_DEBUG("ext4load device='%s', addr='%s', file: %s\n",
+		dev1, addr_str, nxri);
+		
+		if (do_ext4_load(bcmd, 0, 5, argv1) != 0) {
+			updatemark = 1;
+		}
+		else
+		{
+		
+			size1 = getenv_hex("filesize", 0);
+			if(size != size)
+			{
+				updatemark = 1;
+			}
+			else
+			{
+				memcpy(md5, (void *)MD5_LOAD_ADDR1, size);
+				if(memcmp(md5, fwdir, size) != 0)
+					updatemark = 1;
+			}
+		}
+		updatemark = 0;
+		if(updatemark == 1)  //更新
+		{
+			USB_DEBUG("zty usb update!\n");
+			sprintf(nxri, "%s", UPDATE_KERNEL);
+			sprintf(addr_str, "%lx", KERNEL_LOAD_ADDR);
+			
+			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
+				dev, addr_str, nxri);
+			if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
+				goto ERROR;
+			}
+			sprintf(nxri, "%s", UPDATE_ROOTFS);
+			sprintf(addr_str, "%lx", FS_LOAD_ADDR);
+			
+			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
+				dev, addr_str, nxri);
+			if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
+				goto ERROR;
+			}
+			sprintf(nxri, "%s", UPDATE_DTB);
+			sprintf(addr_str, "%lx", DTB_LOAD_ADDR);
+			
+			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
+				dev, addr_str, nxri);
+			if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
+				goto ERROR;
+			}
+			
+		}
+		else
+			goto ERROR;
+
+		
+	}
 
 	/* Stop USB */
 	usb_stop();
 	return 0;
+ERROR:
+	usb_stop();
+	return 1;
+
 }
