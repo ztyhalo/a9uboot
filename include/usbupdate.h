@@ -9,6 +9,8 @@
 #ifndef __USB_UPDATE_H
 #define __USB_UPDATE_H
 
+#define CONFIG_USBUPDATE_DEBUG
+
 /* Default prefix for output messages */
 #define LOG_PREFIX	"zty:"
 
@@ -24,6 +26,9 @@
 #define RESCUE_IMAGE	"nxrs.img"
 #define LOAD_ADDR	0x400000
 #define RS_BOOTARGS	"ramdisk_size=8192K"
+
+#define MD5_FILE_NAME   "version"
+#define MD5_LOAD_ADDR    0x18000000
 
 /* Main function for usbupdate */
 void imx6_usbupdate(void);

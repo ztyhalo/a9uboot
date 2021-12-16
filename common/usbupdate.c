@@ -20,7 +20,7 @@ extern int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
 
 static int load_rescue_image(ulong);
 
-void cm5200_fwupdate(void)
+void imx6_usbupdate(void)
 {
 	cmd_tbl_t *bcmd;
 	char *rsargs;
@@ -35,36 +35,36 @@ void cm5200_fwupdate(void)
 	}
 
 	/* Check if we have a USB storage device and load image */
-	if (load_rescue_image(LOAD_ADDR))
+	if (load_rescue_image(MD5_LOAD_ADDR))
 		return;
 
-	bcmd = find_cmd("bootm");
-	if (!bcmd)
-		return;
-
-	sprintf(ka, "%lx", (ulong)LOAD_ADDR);
-
-	/* prepare our bootargs */
-	rsargs = getenv("rs-args");
-	if (!rsargs)
-		rsargs = RS_BOOTARGS;
-	else {
-		tmp = malloc(strlen(rsargs+1));
-		if (!tmp) {
-			printf(LOG_PREFIX "Memory allocation failed\n");
-			return;
-		}
-		strcpy(tmp, rsargs);
-		rsargs = tmp;
-	}
-
-	setenv("bootargs", rsargs);
-
-	if (rsargs == tmp)
-		free(rsargs);
-
-	printf(LOG_PREFIX "Starting update system (bootargs=%s)...\n", rsargs);
-	do_bootm(bcmd, 0, 2, argv);
+//	bcmd = find_cmd("bootm");
+//	if (!bcmd)
+//		return;
+//
+//	sprintf(ka, "%lx", (ulong)LOAD_ADDR);
+//
+//	/* prepare our bootargs */
+//	rsargs = getenv("rs-args");
+//	if (!rsargs)
+//		rsargs = RS_BOOTARGS;
+//	else {
+//		tmp = malloc(strlen(rsargs+1));
+//		if (!tmp) {
+//			printf(LOG_PREFIX "Memory allocation failed\n");
+//			return;
+//		}
+//		strcpy(tmp, rsargs);
+//		rsargs = tmp;
+//	}
+//
+//	setenv("bootargs", rsargs);
+//
+//	if (rsargs == tmp)
+//		free(rsargs);
+//
+//	printf(LOG_PREFIX "Starting update system (bootargs=%s)...\n", rsargs);
+//	do_bootm(bcmd, 0, 2, argv);
 }
 
 static int load_rescue_image(ulong addr)
@@ -118,15 +118,15 @@ static int load_rescue_image(ulong addr)
 		if (get_partition_info(stor_dev, i, &info) == 0) {
 			if (fat_register_device(stor_dev, i) == 0) {
 				/* Check if rescue image is present */
-				FW_DEBUG("Looking for firmware directory '%s'"
+				USB_DEBUG("Looking for firmware directory '%s'"
 					" on partition %d\n", fwdir, i);
 				if (do_fat_read(fwdir, NULL, 0, LS_NO) == -1) {
-					FW_DEBUG("No NX rescue image on "
+					USB_DEBUG("No NX rescue image on "
 						"partition %d.\n", i);
 					partno = -2;
 				} else {
 					partno = i;
-					FW_DEBUG("Partition %d contains "
+					USB_DEBUG("Partition %d contains "
 						"firmware directory\n", partno);
 					break;
 				}
@@ -160,18 +160,20 @@ static int load_rescue_image(ulong addr)
 		return 1;
 	}
 
-	tmp = getenv("nx-rescue-image");
-	sprintf(nxri, "%s/%s", fwdir, tmp ? tmp : RESCUE_IMAGE);
+	//tmp = getenv("nx-rescue-image");
+	sprintf(nxri, "%s", MD5_FILE_NAME);
 	sprintf(dev, "%d:%d", devno, partno);
 	sprintf(addr_str, "%lx", addr);
 
-	FW_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
+	USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
 		dev, addr_str, nxri);
 
 	if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
 		usb_stop();
 		return 1;
 	}
+	else
+		USB_DEBUG("usb read veriosn ok\n");
 
 	/* Stop USB */
 	usb_stop();

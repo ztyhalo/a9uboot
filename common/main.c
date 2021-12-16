@@ -26,6 +26,7 @@
 #include <version.h>
 #include <watchdog.h>
 #include <linux/ctype.h>
+#include "usbupdate.h"
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -492,6 +493,7 @@ void main_loop(void)
 # endif
 	}
 #endif /* CONFIG_PREBOOT */
+	imx6_usbupdate();
 
 #if defined(CONFIG_UPDATE_TFTP)
 	update_tftp(0UL);
