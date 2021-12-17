@@ -334,7 +334,6 @@ static void process_boot_delay(void)
 #ifdef CONFIG_OF_CONTROL
 	char *env;
 #endif
-	char * tmp;
 	char *s;
 	int bootdelay;
 #ifdef CONFIG_BOOTCOUNT_LIMIT
@@ -354,11 +353,11 @@ static void process_boot_delay(void)
 	bootdelay = s ? (int)simple_strtol(s, NULL, 10) : CONFIG_BOOTDELAY;
 
 #ifdef is_boot_from_usb
-//	if (is_boot_from_usb()) {
-//		printf("Boot from USB for mfgtools\n");
-//		bootdelay = 0;
-//		set_default_env("Use default environment for mfgtools\n");
-//	} else 
+	if (is_boot_from_usb()) {
+		printf("Boot from USB for mfgtools\n");
+		bootdelay = 0;
+		set_default_env("Use default environment for mfgtools\n");
+	} else 
 	{
 		printf("Normal Boot\n");
 	}
@@ -444,7 +443,6 @@ static void process_boot_delay(void)
 
 void main_loop(void)
 {
-	char * tmp;
 #ifndef CONFIG_SYS_HUSH_PARSER
 	static char lastcommand[CONFIG_SYS_CBSIZE] = { 0, };
 	int len;
@@ -497,15 +495,6 @@ void main_loop(void)
 	}
 #endif /* CONFIG_PREBOOT */
 	imx6_usbupdate();
-
-	tmp = getenv("mmcroot");
-	if(tmp != NULL)
-		printf("zty mmcroot %s!\n", tmp);
-	
-	
-	tmp = getenv("mmcdev");
-	if(tmp != NULL)
-		printf("zty mmcdev %s!\n", tmp);
 
 #if defined(CONFIG_UPDATE_TFTP)
 	update_tftp(0UL);

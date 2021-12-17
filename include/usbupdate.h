@@ -30,15 +30,17 @@
 
 #define IMX_BOOTARGS   "console=ttymxc0,115200 rdinit=/sbin/init"
 
-#define MD5_FILE_NAME   "/hndzz/md5"
+#define UPDATE_ROOT_DIR "/hndzz/"
+
+#define MD5_FILE_NAME   UPDATE_ROOT_DIR"file/md5"
 #define MD5_LOAD_ADDR    0x18000000
 
-#define MD5_FILE_NAME1   "/opt/version"
+#define MD5_FILE_NAME1   "/opt/md5"
 #define MD5_LOAD_ADDR1    0x18000100
 #define MD5_MMC_DEV       	2
 #define MD5_MMC_DEV_PART       2
 
-#define UPDATE_ROOT_DIR ""
+
 
 
 #define UPDATE_KERNEL   UPDATE_ROOT_DIR"zImage"

@@ -17,13 +17,14 @@
 
 extern long do_fat_read(const char *, void *, unsigned long, int);
 extern int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
+extern int do_ext4_load(cmd_tbl_t *, int , int, char * const []);
 
 static int load_rescue_image(ulong);
 
 void imx6_usbupdate(void)
 {
 	cmd_tbl_t *bcmd;
-	char *rsargs;
+//	char *rsargs;
 	char *tmp = NULL;
 	char ka[16];
 	char fs[16];
@@ -86,16 +87,16 @@ void imx6_usbupdate(void)
 
 static int load_rescue_image(ulong addr)
 {
-	disk_partition_t info;
+//	disk_partition_t info;
 	int size ;
 	int size1;
 	int devno;
-	int partno;
-	int i;
+//	int partno;
+//	int i;
 	char fwdir[64];
 	char md5[64];
 	char nxri[128];
-	char *tmp;
+//	char *tmp;
 	char dev[7];
 	char dev1[7];
 	char addr_str[16];
@@ -204,12 +205,13 @@ static int load_rescue_image(ulong addr)
 		size = getenv_hex("filesize", 0);
 		USB_DEBUG("usb read veriosn ok %d\n",size);
 		memcpy(fwdir, (void *)addr, size);
+		/*
 		for(i= 0; i < size; i++)
 		{
 			printf("%c ", fwdir[i]);
 		}
 		printf("\n");
-		
+		*/
 		//
 		bcmd = find_cmd("ext4load");
 		if (!bcmd) {
@@ -219,7 +221,7 @@ static int load_rescue_image(ulong addr)
 		}
 		sprintf(nxri, "%s", MD5_FILE_NAME1);
 		sprintf(dev1, "%d:%d", MD5_MMC_DEV, MD5_MMC_DEV_PART);
-		sprintf(addr_str, "%lx", MD5_LOAD_ADDR1);
+		sprintf(addr_str, "%lx", (ulong)MD5_LOAD_ADDR1);
 			USB_DEBUG("ext4load device='%s', addr='%s', file: %s\n",
 		dev1, addr_str, nxri);
 		
@@ -230,7 +232,7 @@ static int load_rescue_image(ulong addr)
 		{
 		
 			size1 = getenv_hex("filesize", 0);
-			if(size != size)
+			if(size1 != size)
 			{
 				updatemark = 1;
 			}
@@ -241,12 +243,12 @@ static int load_rescue_image(ulong addr)
 					updatemark = 1;
 			}
 		}
-		updatemark = 0;
+		//updatemark = 0;
 		if(updatemark == 1)  //更新
 		{
 			USB_DEBUG("zty usb update!\n");
 			sprintf(nxri, "%s", UPDATE_KERNEL);
-			sprintf(addr_str, "%lx", KERNEL_LOAD_ADDR);
+			sprintf(addr_str, "%lx", (ulong)KERNEL_LOAD_ADDR);
 			
 			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
 				dev, addr_str, nxri);
@@ -254,7 +256,7 @@ static int load_rescue_image(ulong addr)
 				goto ERROR;
 			}
 			sprintf(nxri, "%s", UPDATE_ROOTFS);
-			sprintf(addr_str, "%lx", FS_LOAD_ADDR);
+			sprintf(addr_str, "%lx", (ulong)FS_LOAD_ADDR);
 			
 			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
 				dev, addr_str, nxri);
@@ -262,7 +264,7 @@ static int load_rescue_image(ulong addr)
 				goto ERROR;
 			}
 			sprintf(nxri, "%s", UPDATE_DTB);
-			sprintf(addr_str, "%lx", DTB_LOAD_ADDR);
+			sprintf(addr_str, "%lx", (ulong)DTB_LOAD_ADDR);
 			
 			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
 				dev, addr_str, nxri);
@@ -272,9 +274,7 @@ static int load_rescue_image(ulong addr)
 			
 		}
 		else
-			goto ERROR;
-
-		
+			goto ERROR;		
 	}
 
 	/* Stop USB */
