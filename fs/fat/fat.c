@@ -54,19 +54,23 @@ static int disk_read(__u32 block, __u32 nr_blocks, void *buf)
 
 int fat_set_blk_dev(block_dev_desc_t *dev_desc, disk_partition_t *info)
 {
+	int i;
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 
 	cur_dev = dev_desc;
 	cur_part_info = *info;
 
+	printf("zty fat_set blkdev start!\n");
 	/* Make sure it has a valid FAT header */
 	if (disk_read(0, 1, buffer) != 1) {
+		printf("zty read fail!\n");
 		cur_dev = NULL;
 		return -1;
 	}
 
 	/* Check if it's actually a DOS volume */
 	if (memcmp(buffer + DOS_BOOT_MAGIC_OFFSET, "\x55\xAA", 2)) {
+		printf("zty dos fail!\n");
 		cur_dev = NULL;
 		return -1;
 	}
@@ -77,6 +81,9 @@ int fat_set_blk_dev(block_dev_desc_t *dev_desc, disk_partition_t *info)
 	if (!memcmp(buffer + DOS_FS32_TYPE_OFFSET, "FAT32", 5))
 		return 0;
 
+	for(i = 0; i < dev_desc->blksz ;i++)
+		printf("%c\n", buffer[i]);
+	
 	cur_dev = NULL;
 	return -1;
 }

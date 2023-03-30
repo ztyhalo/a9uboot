@@ -87,12 +87,12 @@ void imx6_usbupdate(void)
 
 static int load_rescue_image(ulong addr)
 {
-//	disk_partition_t info;
+	disk_partition_t info;
 	int size ;
 	int size1;
 	int devno;
-//	int partno;
-//	int i;
+	int partno;
+	int i;
 	char fwdir[64];
 	char md5[64];
 	char nxri[128];
@@ -139,13 +139,14 @@ static int load_rescue_image(ulong addr)
 	}
 
 	/* Detect partition */
-      /*
+      
 	for (partno = -1, i = 0; i < 6; i++) {
 		if (get_partition_info(stor_dev, i, &info) == 0) {
 			if (fat_register_device(stor_dev, i) == 0) {
 				// Check if rescue image is present 
 				USB_DEBUG("Looking for firmware directory '%s'"
 					" on partition %d\n", fwdir, i);
+				/*
 				if (do_fat_read(fwdir, NULL, 0, LS_NO) == -1) {
 					USB_DEBUG("No NX rescue image on "
 						"partition %d.\n", i);
@@ -156,6 +157,9 @@ static int load_rescue_image(ulong addr)
 						"firmware directory\n", partno);
 					break;
 				}
+				*/
+				partno = i;
+				break;
 			}
 		}
 	}
@@ -178,7 +182,7 @@ static int load_rescue_image(ulong addr)
 		return 1;
 	}
 
-	*/
+
 	/* Load the rescue image */
 	bcmd = find_cmd("fatload");
 	if (!bcmd) {
@@ -189,11 +193,13 @@ static int load_rescue_image(ulong addr)
 
 	//tmp = getenv("nx-rescue-image");
 	sprintf(nxri, "%s", MD5_FILE_NAME);
-	//sprintf(dev, "%d:%d", devno, partno);
-	sprintf(dev, "%d", devno);
+	sprintf(dev, "%d:%d", devno, partno);
+	//sprintf(dev, "%d", devno);
 	sprintf(addr_str, "%lx", addr);
 
 	USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
+		dev, addr_str, nxri);
+	printf("fat_fsload device='%s', addr='%s', file: %s\n",
 		dev, addr_str, nxri);
 
 	if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {

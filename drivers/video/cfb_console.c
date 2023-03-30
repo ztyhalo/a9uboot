@@ -2221,7 +2221,8 @@ static int video_init(void)
 #ifdef CONFIG_VIDEO_LOGO
 	/* Plot the logo and get start point of console */
 	debug("Video: Drawing the logo ...\n");
-	video_console_address = video_logo();
+//	video_console_address = video_logo();
+	video_console_address = video_fb_address;
 #else
 	video_console_address = video_fb_address;
 #endif

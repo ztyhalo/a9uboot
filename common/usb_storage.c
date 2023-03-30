@@ -137,7 +137,7 @@ struct us_data {
  * enough free heap space left, but the SCSI READ(10) and WRITE(10) commands are
  * limited to 65535 blocks.
  */
-#define USB_MAX_XFER_BLK	65535
+#define USB_MAX_XFER_BLK	2000 //65535
 #else
 #define USB_MAX_XFER_BLK	20
 #endif
@@ -1047,10 +1047,12 @@ unsigned long usb_stor_read(int device, lbaint_t blknr,
 	struct us_data *ss;
 	int retry, i;
 	ccb *srb = &usb_ccb;
+	int   max_xfer_blk;
 
 	if (blkcnt == 0)
 		return 0;
 
+	max_xfer_blk = USB_MAX_XFER_BLK;
 	device &= 0xff;
 	/* Setup  device */
 	debug("\nusb_read: dev %d \n", device);
@@ -1077,18 +1079,46 @@ unsigned long usb_stor_read(int device, lbaint_t blknr,
 		/* XXX need some comment here */
 		retry = 2;
 		srb->pdata = (unsigned char *)buf_addr;
-		if (blks > USB_MAX_XFER_BLK)
-			smallblks = USB_MAX_XFER_BLK;
+retry_it:
+		if (blks > max_xfer_blk)
+			smallblks = max_xfer_blk;
 		else
 			smallblks = (unsigned short) blks;
-retry_it:
-		if (smallblks == USB_MAX_XFER_BLK)
+		if (smallblks == max_xfer_blk)
 			usb_show_progress();
+//		if (blks > USB_MAX_XFER_BLK)
+//			smallblks = USB_MAX_XFER_BLK;
+//		else
+//			smallblks = (unsigned short) blks;
+//retry_it:
+//		if (smallblks == USB_MAX_XFER_BLK)
+//			usb_show_progress();
 		srb->datalen = usb_dev_desc[device].blksz * smallblks;
 		srb->pdata = (unsigned char *)buf_addr;
 		if (usb_read_10(srb, ss, start, smallblks)) {
 			debug("Read ERROR\n");
 			usb_request_sense(srb, ss);
+                       if (smallblks > 2047) { /* Dynamically reduce the I/O size. */
+                          max_xfer_blk = 2047;
+                          debug("step down usb_max_xfer_blk to %d\n", max_xfer_blk);
+                           ++retry;
+                       }
+                       else if (smallblks > 512) {
+                          max_xfer_blk = 512;
+                          debug("step down usb_max_xfer_blk to %d\n", max_xfer_blk);
+                          ++retry;
+                       }
+                       else if (smallblks > 511) {
+                          max_xfer_blk = 511;
+                          debug("step down usb_max_xfer_blk to %d\n", max_xfer_blk);
+                          ++retry;
+                       }
+                       else if (smallblks > 63) {
+                          max_xfer_blk = 63;
+                          debug("step down usb_max_xfer_blk to %d\n", max_xfer_blk);
+                          retry += 2;
+                       }
+
 			if (retry--)
 				goto retry_it;
 			blkcnt -= blks;

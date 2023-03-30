@@ -108,6 +108,8 @@ static void usb_hub_power_on(struct usb_hub_device *hub)
 	}
 
 	/* Wait at least 2*bPwrOn2PwrGood for PP to change */
+//	printf("zty usb_delay %d!\n", pgood_delay);
+	pgood_delay = max(pgood_delay, 200);
 	mdelay(pgood_delay);
 
 	for (i = 0; i < dev->maxchild; i++) {

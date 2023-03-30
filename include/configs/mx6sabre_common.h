@@ -180,8 +180,8 @@
 	"mmcroot=" CONFIG_MMCROOT " rootwait rw\0" \
 	"mmcautodetect=yes\0" \
 	"clear_aw=i2c mw 40 81 0\0" \
-	"pridis=video=mxcfb0:dev=ldb,bpp32\0" \
-	"secdis=video=mxcfb1:dev=hdmi,1920*1080M@60,if=RGB24\0" \
+	"pridis=video=mxcfb0:dev=ldb,if=RGB24\0" \
+	"secdis=video=mxcfb1:dev=ldb,if=RGB24\0" \
 	"update_sd_firmware=" \
 		"if test ${ip_dyn} = yes; then " \
 			"setenv get_cmd dhcp; " \
