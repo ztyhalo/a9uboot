@@ -240,5 +240,50 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 
 int ehci_hcd_stop(int index)
 {
+	
+	void __iomem *phy_reg;
+	void __iomem *phy_ctrl;
+	void __iomem *usb_cmd;
+	u32 val;
+
+	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
+		(0x200 * index));
+
+	if (index >= ARRAY_SIZE(phy_bases))
+		return 0;
+
+	phy_reg = (void __iomem *)phy_bases[index];
+	phy_ctrl = (void __iomem *)(phy_reg + USBPHY_CTRL);
+	usb_cmd = (void __iomem *)&ehci->usbcmd;
+
+	/* Stop then Reset */
+	val = __raw_readl(usb_cmd);
+	val &= ~UCMD_RUN_STOP;
+	__raw_writel(val, usb_cmd);
+	while (__raw_readl(usb_cmd) & UCMD_RUN_STOP)
+		;
+
+	val = __raw_readl(usb_cmd);
+	val |= UCMD_RESET;
+	__raw_writel(val, usb_cmd);
+	while (__raw_readl(usb_cmd) & UCMD_RESET)
+		;
+
+
+	/* Reset USBPHY module */
+	val = __raw_readl(phy_ctrl);
+	val |= USBPHY_CTRL_SFTRST;
+	__raw_writel(val, phy_ctrl);
+	udelay(10);
+
+
+	/* Remove CLKGATE and SFTRST */
+	val = __raw_readl(phy_ctrl);
+	val &= ~(USBPHY_CTRL_CLKGATE | USBPHY_CTRL_SFTRST);
+	__raw_writel(val, phy_ctrl);
+	udelay(10);
+
+
+
 	return 0;
 }
