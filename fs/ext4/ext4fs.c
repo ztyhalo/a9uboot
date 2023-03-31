@@ -26,6 +26,12 @@
 #include <ext4fs.h>
 #include "ext4_common.h"
 
+#include <div64.h>
+#include <asm/arch/imx-regs.h>
+#include <asm/arch/clock.h>
+#include <asm/io.h>
+#include <asm/arch/sys_proto.h>
+
 int ext4fs_symlinknest;
 struct ext_filesystem ext_fs;
 
@@ -63,15 +69,18 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 	char *delayed_buf = NULL;
 	short status;
 
+	if (blocksize <= 0)
+		return -1;
+
 	/* Adjust len so it we can't read past the end of the file. */
-	if (len > filesize)
-		len = filesize;
+	if (len + pos > filesize)
+		len = (filesize - pos);
 
-	blockcnt = ((len + pos) + blocksize - 1) / blocksize;
+	blockcnt = lldiv(((len + pos) + blocksize - 1), blocksize);
 
-	for (i = pos / blocksize; i < blockcnt; i++) {
-		lbaint_t blknr;
-		int blockoff = pos % blocksize;
+	for (i = lldiv(pos, blocksize); i < blockcnt; i++) {
+		long int blknr;
+		int blockoff = pos - (blocksize * i);
 		int blockend = blocksize;
 		int skipfirst = 0;
 		blknr = read_allocated_block(&(node->inode), i);
@@ -82,7 +91,7 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 
 		/* Last block.  */
 		if (i == blockcnt - 1) {
-			blockend = (len + pos) % blocksize;
+			blockend = (len + pos) - (blocksize * i);
 
 			/* The last portion is exactly blocksize. */
 			if (!blockend)
@@ -90,7 +99,7 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 		}
 
 		/* First block. */
-		if (i == pos / blocksize) {
+		if (i == lldiv(pos, blocksize)) {
 			skipfirst = blockoff;
 			blockend -= skipfirst;
 		}
@@ -126,6 +135,7 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 					(blockend >> log2blksz);
 			}
 		} else {
+			int n;
 			if (previous_block_number != -1) {
 				/* spill */
 				status = ext4fs_devread(delayed_start,
@@ -136,7 +146,11 @@ int ext4fs_read_file(struct ext2fs_node *node, int pos,
 					return -1;
 				previous_block_number = -1;
 			}
-			memset(buf, 0, blocksize - skipfirst);
+			/* Zero no more than `len' bytes. */
+			n = blocksize - skipfirst;
+			if (n > len)
+				n = len;
+			memset(buf, 0, n);
 		}
 		buf += blocksize - skipfirst;
 	}
@@ -182,12 +196,12 @@ int ext4fs_exists(const char *filename)
 	return file_len >= 0;
 }
 
-int ext4fs_read(char *buf, unsigned len)
+int ext4fs_read(char *buf, loff_t offset, loff_t len)
 {
 	if (ext4fs_root == NULL || ext4fs_file == NULL)
 		return 0;
 
-	return ext4fs_read_file(ext4fs_file, 0, len, buf);
+	return ext4fs_read_file(ext4fs_file, offset, len, buf);
 }
 
 int ext4fs_probe(block_dev_desc_t *fs_dev_desc,
@@ -209,8 +223,8 @@ int ext4_read_file(const char *filename, void *buf, int offset, int len)
 	int len_read;
 
 	if (offset != 0) {
-		printf("** Cannot support non-zero offset **\n");
-		return -1;
+		//printf("** Cannot support non-zero offset **\n");
+		//return -1;
 	}
 
 	file_len = ext4fs_open(filename);
@@ -222,7 +236,5 @@ int ext4_read_file(const char *filename, void *buf, int offset, int len)
 	if (len == 0)
 		len = file_len;
 
-	len_read = ext4fs_read(buf, len);
-
-	return len_read;
+	return ext4fs_read(buf, offset, len);
 }

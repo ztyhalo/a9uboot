@@ -190,6 +190,7 @@ obj-$(CONFIG_LYNXKDI) += lynxkdi.o
 obj-$(CONFIG_MENU) += menu.o
 obj-$(CONFIG_MODEM_SUPPORT) += modem.o
 obj-y += usbupdate.o
+obj-y += scanconfig.o
 obj-$(CONFIG_UPDATE_TFTP) += update.o
 obj-$(CONFIG_USB_KEYBOARD) += usb_kbd.o
 obj-$(CONFIG_FASTBOOT) += cmd_fastboot.o

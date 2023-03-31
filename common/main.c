@@ -29,7 +29,7 @@
 #include "usbupdate.h"
 
 DECLARE_GLOBAL_DATA_PTR;
-
+extern int scanConfigFile(void);
 /*
  * Board-specific Platform code can reimplement show_boot_progress () if needed
  */
@@ -494,6 +494,8 @@ void main_loop(void)
 # endif
 	}
 #endif /* CONFIG_PREBOOT */
+
+	scanConfigFile();
 	imx6_usbupdate();
 
 #if defined(CONFIG_UPDATE_TFTP)
