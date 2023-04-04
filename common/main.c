@@ -495,7 +495,7 @@ void main_loop(void)
 	}
 #endif /* CONFIG_PREBOOT */
 
-	scanConfigFile();
+	//scanConfigFile();
 	imx6_usbupdate();
 
 #if defined(CONFIG_UPDATE_TFTP)

@@ -42,7 +42,10 @@ int scanConfigFile(void)
 			break;
 		}
 		bytes=0;
-		while (buf[bytes]!='\n') bytes++;
+		while (buf[bytes]!='\n'){
+			bytes++;
+			if (bytes>=512) break;
+		} 
 		currentChar=currentChar+bytes+1;
 		memset(tempbuf,0,sizeof(tempbuf));
 		memcpy(tempbuf,buf,bytes+1);
