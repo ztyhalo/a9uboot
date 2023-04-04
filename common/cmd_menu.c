@@ -86,6 +86,58 @@ start:
 	}
 }
 
+#if 0
+static void menu_shell(void)
+{
+	char c;
+	while(1)
+	{
+		printf("[1] 256 host controller board\n");
+		printf("[2] 256 monitor board\n");
+		printf("[3] ktc101max\n");
+		printf("[4] tk200 ktc101 A 12inch screen\n");
+		printf("[5] tk200 ktc101 A 10.4inch screen\n");
+		printf("[r] reboot the machine\n");
+		//printf("[x] system firmware update !\n");
+		printf("[q] quit to uboot command line\n");
+		printf("Please select: ");
+
+		c = getc();
+		printf("%c\n", c);
+
+		switch(c)
+		{
+			case 'p':
+				display_set(0);
+				break;
+
+			case 's':
+				display_set(1);
+				break;
+
+			case 'd':
+				run_command("env default -f -a", 0);
+				run_command("saveenv", 0);
+				break;
+			case 'r':
+				run_command("reset", 0);
+				break;
+
+			case 'x':
+				img_update();
+				break;
+				
+			case 'q':
+				return;
+
+			default:
+				break;	
+		}
+	}
+}
+#endif
+
+#if 1
 static void menu_shell(void)
 {
 	char c;
@@ -132,7 +184,7 @@ static void menu_shell(void)
 		}
 	}
 }
-
+#endif
 static int do_menu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	menu_shell();
