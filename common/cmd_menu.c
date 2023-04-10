@@ -29,7 +29,7 @@ static void boardDevConfig(int index)
 	switch(index) {
 		case 0:
 			snprintf(cmd_buf, 127, "setenv pridis video=mxcfb0:dev=ldb,if=RGB24");
-			run_command(cmd_buf, 0);
+			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=ldb,if=RGB24");
 			run_command(cmd_buf, 0);
 			snprintf(cmd_buf, 512, "setenv wdconfig %s%s %s ",boardConfigBuf,"screenSize=21.5","system=yocto");
@@ -39,7 +39,7 @@ static void boardDevConfig(int index)
 		break;
 		case 1:
 			snprintf(cmd_buf, 127, "setenv pridis video=mxcfb0:dev=ldb,if=RGB24");
-			run_command(cmd_buf, 0);
+			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=ldb,if=RGB24");
 			run_command(cmd_buf, 0);
 			snprintf(cmd_buf, 512, "setenv wdconfig %s%s %s ",boardConfigBuf,"screenSize=21.5","system=yocto");
@@ -49,18 +49,17 @@ static void boardDevConfig(int index)
 			break;
 		case 2:
 			snprintf(cmd_buf, 127, "setenv pridis video=mxcfb0:dev=ldb,bpp32");
-			run_command(cmd_buf, 0);
+			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=hdmi,1920*1080M@60,if=RGB24");
 			run_command(cmd_buf, 0);
 			snprintf(cmd_buf, 512, "setenv wdconfig %s%s %s ",boardConfigBuf,"screenSize=12-10.4","system=harmony");
 			run_command(cmd_buf, 0);	
 			run_command("saveenv", 0);
 			writeConfigFile(cmd_buf, strlen(cmd_buf));
-			writeConfigFile();
 			break;
 		case 3:
 			snprintf(cmd_buf, 127, "setenv pridis video=mxcfb0:dev=ldb,if=RGB24");
-			run_command(cmd_buf, 0);
+			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=ldb,if=RGB24");
 			run_command(cmd_buf, 0);
 			snprintf(cmd_buf, 512, "setenv wdconfig %s%s %s ",boardConfigBuf,"screenSize=12-10.4","system=harmony");
