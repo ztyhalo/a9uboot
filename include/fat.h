@@ -86,7 +86,9 @@
 			  (FAT2CPU16((dent)->starthi) << 16)))
 #define CHECK_CLUST(x, fatsize) ((x) <= 1 || \
 				(x) >= ((fatsize) != 32 ? 0xfff0 : 0xffffff0))
-
+#define IS_LAST_CLUST(x, fatsize) ((x) >= ((fatsize) != 32 ? \
+					((fatsize) != 16 ? 0xff8 : 0xfff8) : \
+					0xffffff8))
 typedef struct boot_sector {
 	__u8	ignored[3];	/* Bootstrap code */
 	char	system_id[8];	/* Name of fs */

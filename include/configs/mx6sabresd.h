@@ -18,7 +18,7 @@
 #define CONFIG_MMCROOT			"/dev/mmcblk2p2"  /* SDHC3 */
 
 #include "mx6sabre_common.h"
-
+#define CONFIG_FAT_WRITE
 /* USB Configs */
 #define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI

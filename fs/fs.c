@@ -92,7 +92,11 @@ static struct fstype_info fstypes[] = {
 		.ls = file_fat_ls,
 		.exists = fat_exists,
 		.read = fat_read_file,
+#ifdef CONFIG_FAT_WRITE
+		.write = file_fat_write,
+#else
 		.write = fs_write_unsupported,
+#endif
 	},
 #endif
 #ifdef CONFIG_FS_EXT4
