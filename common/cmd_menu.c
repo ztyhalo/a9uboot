@@ -82,6 +82,11 @@ static void boardDevConfig(int index)
 		default:
 			break;
 	}
+
+	snprintf(cmd_buf, 512, "setenv mmcargs setenv bootargs console=${console},${baudrate} ${smp} root=${mmcroot} ${pridis} ${secdis} ${wdconfig} consoleblank=0");
+	run_command(cmd_buf, 0);
+	run_command("saveenv", 0);
+
 }
 
 static void menu_shell(void)
