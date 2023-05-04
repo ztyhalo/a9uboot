@@ -524,6 +524,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	flush_dcache_range((uint32_t)qtd,
 			   ALIGN_END_ADDR(struct qTD, qtd, qtd_count));
 
+	udelay(800);
 	/* Set async. queue head pointer. */
 	ehci_writel(&ctrl->hcor->or_asynclistaddr, (uint32_t)&ctrl->qh_list);
 
@@ -573,6 +574,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	invalidate_dcache_range((uint32_t)buffer,
 		ALIGN((uint32_t)buffer + length, ARCH_DMA_MINALIGN));
 
+	udelay(800);
 	/* Check that the TD processing happened */
 	if (QT_TOKEN_GET_STATUS(token) & QT_TOKEN_STATUS_ACTIVE)
 		printf("EHCI timed out on TD - token=%#x\n", token);
@@ -674,6 +676,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	case USB_REQ_SET_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
 	case USB_REQ_CLEAR_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
 		status_reg = ehci_get_portsc_register(ctrl->hcor, port - 1);
+		debug("zty status reg 0x%x!\n", status_reg);
 		if (!status_reg)
 			return -1;
 		break;
@@ -684,6 +687,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 
 	switch (typeReq) {
 	case DeviceRequest | USB_REQ_GET_DESCRIPTOR:
+		
 		switch (le16_to_cpu(req->value) >> 8) {
 		case USB_DT_DEVICE:
 			debug("USB_DT_DEVICE request\n");
@@ -754,6 +758,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	case USB_REQ_GET_STATUS | ((USB_RT_PORT | USB_DIR_IN) << 8):
 		memset(tmpbuf, 0, 4);
 		reg = ehci_readl(status_reg);
+		debug("zty statusreg val 0x%x!\n", reg);
 		if (reg & EHCI_PS_CS)
 			tmpbuf[0] |= USB_PORT_STAT_CONNECTION;
 		if (reg & EHCI_PS_PE)
@@ -780,7 +785,9 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 				break;
 			}
 		} else {
+			
 			tmpbuf[1] |= USB_PORT_STAT_HIGH_SPEED >> 8;
+			debug("zty usb speed val 0x%x!\n", tmpbuf[1]);
 		}
 
 		if (reg & EHCI_PS_CSC)

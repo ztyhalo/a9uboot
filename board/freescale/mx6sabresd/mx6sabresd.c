@@ -1517,9 +1517,15 @@ void udc_pins_setting(void)
 #endif /*CONFIG_IMX_UDC*/
 
 #ifdef CONFIG_USB_EHCI_MX6
+// iomux_v3_cfg_t const usb_otg_pads[] = {
+// 	MX6_PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
+// 	MX6_PAD_ENET_RX_ER__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
+// };
+
 iomux_v3_cfg_t const usb_otg_pads[] = {
-	MX6_PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
-	MX6_PAD_ENET_RX_ER__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
+//	MX6_PAD_EIM_D22__USB_OTG_PWR | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_GPIO_1__USB_OTG_ID | MUX_PAD_CTRL(NO_PAD_CTRL),
+	MX6_PAD_EIM_D29__GPIO3_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),
 };
 
 iomux_v3_cfg_t const usb_hc1_pads[] = {
@@ -1530,11 +1536,12 @@ int board_ehci_hcd_init(int port)
 {
 	switch (port) {
 	case 0:
+		printf("zty usb otg init!\n");
 		imx_iomux_v3_setup_multiple_pads(usb_otg_pads,
 			ARRAY_SIZE(usb_otg_pads));
 
 		/*set daisy chain for otg_pin_id on 6q. for 6dl, this bit is reserved*/
-		mxc_iomux_set_gpr_register(1, 13, 1, 0);
+		// mxc_iomux_set_gpr_register(1, 13, 1, 0);
 		break;
 	case 1:
 		imx_iomux_v3_setup_multiple_pads(usb_hc1_pads,
@@ -1549,8 +1556,20 @@ int board_ehci_hcd_init(int port)
 
 int board_ehci_power(int port, int on)
 {
+	int ret = 0;
 	switch (port) {
 	case 0:
+		
+
+		if (on)
+			gpio_direction_output(IMX_GPIO_NR(3, 29), 1);
+		else
+		{
+			printf("zty usb power stop!");
+			gpio_direction_output(IMX_GPIO_NR(3, 29), 0);
+		}
+		ret = gpio_get_value(IMX_GPIO_NR(3, 29));
+		printf("zty set %d get gpio val 0x%x!\n", on, ret); 
 		break;
 	case 1:
 		if (on)

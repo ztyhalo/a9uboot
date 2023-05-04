@@ -137,7 +137,7 @@ struct us_data {
  * enough free heap space left, but the SCSI READ(10) and WRITE(10) commands are
  * limited to 65535 blocks.
  */
-#define USB_MAX_XFER_BLK	2000 //65535
+#define USB_MAX_XFER_BLK	4096//65535
 #else
 #define USB_MAX_XFER_BLK	20
 #endif
@@ -239,7 +239,7 @@ int usb_stor_scan(int mode)
 		debug("i=%d\n", i);
 		if (dev == NULL)
 			break; /* no more devices available */
-
+		debug("zty usb%d storage probe start!\n", i);
 		if (usb_storage_probe(dev, 0, &usb_stor[usb_max_devs])) {
 			/* OK, it's a storage device.  Iterate over its LUNs
 			 * and populate `usb_dev_desc'.
@@ -1097,9 +1097,10 @@ retry_it:
 		srb->pdata = (unsigned char *)buf_addr;
 		if (usb_read_10(srb, ss, start, smallblks)) {
 			debug("Read ERROR\n");
+			printf("usb read erro blk is %d!\n", smallblks);
 			usb_request_sense(srb, ss);
-                       if (smallblks > 2047) { /* Dynamically reduce the I/O size. */
-                          max_xfer_blk = 2047;
+                       if (smallblks > 2048) { /* Dynamically reduce the I/O size. */
+                          max_xfer_blk = 2048;
                           debug("step down usb_max_xfer_blk to %d\n", max_xfer_blk);
                            ++retry;
                        }
@@ -1108,13 +1109,13 @@ retry_it:
                           debug("step down usb_max_xfer_blk to %d\n", max_xfer_blk);
                           ++retry;
                        }
-                       else if (smallblks > 511) {
-                          max_xfer_blk = 511;
+                       else if (smallblks > 256) {
+                          max_xfer_blk = 256;
                           debug("step down usb_max_xfer_blk to %d\n", max_xfer_blk);
                           ++retry;
                        }
-                       else if (smallblks > 63) {
-                          max_xfer_blk = 63;
+                       else if (smallblks > 128) {
+                          max_xfer_blk = 128;
                           debug("step down usb_max_xfer_blk to %d\n", max_xfer_blk);
                           retry += 2;
                        }

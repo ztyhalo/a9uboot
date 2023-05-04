@@ -20,6 +20,7 @@ extern int do_fat_fsload(cmd_tbl_t *, int, int, char * const []);
 extern int do_ext4_load(cmd_tbl_t *, int , int, char * const []);
 
 static int load_rescue_image(ulong);
+static int mmc_load_rescue_image(ulong addr);
 
 void imx6_usbupdate(void)
 {
@@ -29,8 +30,11 @@ void imx6_usbupdate(void)
 	char ka[16];
 	char fs[16];
 	char dtb[16];
+	char profile[64];
 	char * const argv[5] = { "bootz", ka,fs,dtb, NULL };
 
+	memset(profile, 0x00, sizeof(profile));
+	
 	/* Check if rescue system is disabled... */
 	if (getenv("norescue")) {
 		printf(LOG_PREFIX "Rescue System disabled.\n");
@@ -38,8 +42,19 @@ void imx6_usbupdate(void)
 	}
 
 	/* Check if we have a USB storage device and load image */
+	if(mmc_load_rescue_image(MD5_LOAD_ADDR))
+	{
 	if (load_rescue_image(MD5_LOAD_ADDR))
 		return;
+		else
+		{
+			sprintf(profile, "%s updatedev=usb", IMX_BOOTARGS);
+		}
+	}
+	else
+	{
+		sprintf(profile, "%s updatedev=mmc", IMX_BOOTARGS);
+	}
 
 	bcmd = find_cmd("bootz");
 	if (!bcmd)
@@ -52,16 +67,17 @@ void imx6_usbupdate(void)
 	/* prepare our bootargs */
 
 
-	tmp = malloc(strlen(IMX_BOOTARGS)+1);
-	if (!tmp) {
-		printf(LOG_PREFIX "Memory allocation failed\n");
-		return;
-	}
-	sprintf(tmp, "%s", IMX_BOOTARGS);
+	// tmp = malloc(strlen(IMX_BOOTARGS)+1);
+	// if (!tmp) {
+	// 	printf(LOG_PREFIX "Memory allocation failed\n");
+	// 	return;
+	// }
+	// sprintf(tmp, "%s", IMX_BOOTARGS);
 	
-	setenv("bootargs", tmp);
+//	setenv("bootargs", tmp);
+	setenv("bootargs", profile);
 //	free(tmp);
-	printf(LOG_PREFIX "Starting update system (bootargs=%s)...\n", tmp);
+	printf(LOG_PREFIX "Starting update system (bootargs=%s)...\n", profile);
 	do_bootz(bcmd, 0, 4, argv);
 	
 //	if (!rsargs)
@@ -116,7 +132,7 @@ static int load_rescue_image(ulong addr)
 
 	printf(LOG_PREFIX "Checking for firmware image directory  on USB"
 		" storage...\n");
-	usb_stop();
+	//usb_stop();
 	if (usb_init() != 0)
 		return 1;
 
@@ -288,6 +304,149 @@ static int load_rescue_image(ulong addr)
 	return 0;
 ERROR:
 	usb_stop();
+	return 1;
+
+}
+
+
+static int mmc_load_rescue_image(ulong addr)
+{
+	disk_partition_t info;
+	int size ;
+	int size1;
+	int devno;
+	int partno;
+	int i;
+	char fwdir[64];
+	char md5[64];
+	char nxri[128];
+	char cmd[32];
+	char mmcblk[32];
+
+	char dev[7];
+	char dev1[7];
+	char addr_str[16];
+	char * const argv[6] = { "fatload", "mmc", dev, addr_str, nxri, NULL };
+	char * const argv1[6] = { "fatload", "mmc", dev1, addr_str, nxri, NULL };
+	block_dev_desc_t *stor_dev = NULL;
+	cmd_tbl_t *bcmd;
+	int updatemark = 0;
+	
+    //init sd1
+	sprintf(cmd, "mmc dev %d:1", 0);
+	run_command(cmd, 0);
+
+	/* Get name of firmware directory */
+	//tmp = getenv("fw-dir");
+
+	/* Copy it into fwdir */
+	//strncpy(fwdir, tmp ? tmp : FW_DIR, sizeof(fwdir));
+	//fwdir[sizeof(fwdir) - 1] = 0; /* Terminate string */
+
+	printf("Checking for firmware image directory  on mmc"
+		" storage...\n");
+
+
+	/* Load the rescue image */
+	bcmd = find_cmd("fatload");
+	if (!bcmd) {
+		printf(LOG_PREFIX "Error - 'fatload' command not present.\n");
+
+		return 1;
+	}
+
+	//tmp = getenv("nx-rescue-image");
+	sprintf(nxri, "%s", MD5_FILE_NAME);
+	sprintf(dev, "%d:%d", 0, 1);
+	//sprintf(dev, "%d", devno);
+	sprintf(addr_str, "%lx", addr);
+
+	printf("fat_fsload device='%s', addr='%s', file: %s\n",
+		dev, addr_str, nxri);
+
+	if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
+		printf("mmc no md5 file!\n");
+		return 1;
+	}
+	else
+	{
+		size = getenv_hex("filesize", 0);
+		USB_DEBUG("usb read veriosn ok %d\n",size);
+		memcpy(fwdir, (void *)addr, size);
+		/*
+		for(i= 0; i < size; i++)
+		{
+			printf("%c ", fwdir[i]);
+		}
+		printf("\n");
+		*/
+		//
+		bcmd = find_cmd("ext4load");
+		if (!bcmd) {
+			printf(LOG_PREFIX "Error - 'ext4load' command not present.\n");
+			return 1;
+		}
+		sprintf(nxri, "%s", MD5_FILE_NAME1);
+		sprintf(dev1, "%d:%d", MD5_MMC_DEV, MD5_MMC_DEV_PART);
+		sprintf(addr_str, "%lx", (ulong)MD5_LOAD_ADDR1);
+			USB_DEBUG("ext4load device='%s', addr='%s', file: %s\n",
+		dev1, addr_str, nxri);
+		
+		if (do_ext4_load(bcmd, 0, 5, argv1) != 0) {
+			updatemark = 1;
+		}
+		else
+		{
+		
+			size1 = getenv_hex("filesize", 0);
+			if(size1 != size)
+			{
+				updatemark = 1;
+			}
+			else
+			{
+				memcpy(md5, (void *)MD5_LOAD_ADDR1, size);
+				if(memcmp(md5, fwdir, size) != 0)
+					updatemark = 1;
+			}
+		}
+		//updatemark = 0;
+		if(updatemark == 1)  //更新
+		{
+			USB_DEBUG("zty mmc update!\n");
+			sprintf(nxri, "%s", UPDATE_KERNEL);
+			sprintf(addr_str, "%lx", (ulong)KERNEL_LOAD_ADDR);
+			
+			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
+				"mmc", addr_str, nxri);
+			if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
+				goto MMCERROR;
+			}
+			sprintf(nxri, "%s", UPDATE_ROOTFS);
+			sprintf(addr_str, "%lx", (ulong)FS_LOAD_ADDR);
+			
+			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
+				"mmc", addr_str, nxri);
+			if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
+				goto MMCERROR;
+			}
+			sprintf(nxri, "%s", UPDATE_DTB);
+			sprintf(addr_str, "%lx", (ulong)DTB_LOAD_ADDR);
+			
+			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
+				"mmc", addr_str, nxri);
+			if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
+				goto MMCERROR;
+			}
+			
+		}
+		else
+			goto MMCERROR;		
+	}
+
+	return 0;
+MMCERROR:
+
 	return 1;
 
 }
