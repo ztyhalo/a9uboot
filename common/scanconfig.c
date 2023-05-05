@@ -60,9 +60,9 @@ int scanConfigFile(void)
 		memcpy(tempbuf,buf,bytes+1);
 		sprintf(bootargs_buf,"%s %s",bootargs_buf,tempbuf);
 
-		printf("currentChar=%d,len_read=%d,www--->%s\n",currentChar,len_read,tempbuf);
+		//printf("currentChar=%d,len_read=%d,www--->%s\n",currentChar,len_read,tempbuf);
 	}
-	setenv("wdconfig",bootargs_buf);
+	setenv("hndzboard",bootargs_buf);
 	return 0;
 }
 

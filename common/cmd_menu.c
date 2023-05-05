@@ -29,7 +29,7 @@ static void boardDevConfig(int index)
 			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=ldb,if=RGB24");
 			run_command(cmd_buf, 0);
-			snprintf(cmd_buf, 512, "setenv wdconfig %s%s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","system=yocto");
+			snprintf(cmd_buf, 512, "setenv hndzboard %s%s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","system=yocto");
 			run_command(cmd_buf, 0);	
 			run_command("saveenv", 0);
 			snprintf(cmd_buf, 512, "%s%s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","system=yocto");
@@ -40,7 +40,7 @@ static void boardDevConfig(int index)
 			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=ldb,if=RGB24");
 			run_command(cmd_buf, 0);
-			snprintf(cmd_buf, 512, "setenv wdconfig %s%s %s %s %s ",boardConfigBuf,"mipicsi=y","audio=n","screenSize=21.5","system=yocto");
+			snprintf(cmd_buf, 512, "setenv hndzboard %s%s %s %s %s ",boardConfigBuf,"mipicsi=y","audio=n","screenSize=21.5","system=yocto");
 			run_command(cmd_buf, 0);	
 			run_command("saveenv", 0);
 			snprintf(cmd_buf, 512, "%s%s %s %s %s ",boardConfigBuf,"mipicsi=y","audio=n","screenSize=21.5","system=yocto");
@@ -51,7 +51,7 @@ static void boardDevConfig(int index)
 			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=hdmi,1920*1080M@60,if=RGB24");
 			run_command(cmd_buf, 0);
-			snprintf(cmd_buf, 512, "setenv wdconfig %s%s %s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","screenSize=12-10.4","system=harmony");
+			snprintf(cmd_buf, 512, "setenv hndzboard %s%s %s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","screenSize=12-10.4","system=harmony");
 			run_command(cmd_buf, 0);	
 			run_command("saveenv", 0);
 			snprintf(cmd_buf, 512, "%s%s %s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","screenSize=12-10.4","system=harmony");
@@ -62,7 +62,7 @@ static void boardDevConfig(int index)
 			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=ldb,if=RGB24");
 			run_command(cmd_buf, 0);
-			snprintf(cmd_buf, 512, "setenv wdconfig %s%s %s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","screenSize=12-10.4","system=harmony");
+			snprintf(cmd_buf, 512, "setenv hndzboard %s%s %s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","screenSize=12-10.4","system=harmony");
 			run_command(cmd_buf, 0);	
 			run_command("saveenv", 0);
 			snprintf(cmd_buf, 512, "%s%s %s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","screenSize=12-10.4","system=harmony");
@@ -73,7 +73,7 @@ static void boardDevConfig(int index)
 			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=ldb,if=RGB24");
 			run_command(cmd_buf, 0);
-			snprintf(cmd_buf, 512, "setenv wdconfig %s%s %s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","screenSize=10.4z","system=yocto");
+			snprintf(cmd_buf, 512, "setenv hndzboard %s%s %s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","screenSize=10.4z","system=yocto");
 			run_command(cmd_buf, 0);	
 			run_command("saveenv", 0);
 			snprintf(cmd_buf, 512, "%s%s %s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","screenSize=10.4z","system=yocto");
@@ -83,7 +83,7 @@ static void boardDevConfig(int index)
 			break;
 	}
 
-	snprintf(cmd_buf, 512, "setenv mmcargs setenv bootargs console=${console},${baudrate} ${smp} root=${mmcroot} ${pridis} ${secdis} ${wdconfig} consoleblank=0");
+	snprintf(cmd_buf, 512, "setenv mmcargs setenv bootargs console=${console},${baudrate} ${smp} root=${mmcroot} ${pridis} ${secdis} ${hndzboard} consoleblank=0");
 	run_command(cmd_buf, 0);
 	run_command("saveenv", 0);
 
