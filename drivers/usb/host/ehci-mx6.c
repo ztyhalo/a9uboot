@@ -227,7 +227,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	*hcor = (struct ehci_hcor *)((uint32_t)*hccr +
 			HC_LENGTH(ehci_readl(&(*hccr)->cr_capbase)));
 
-	printf("zty usb register 0x%x 0x%x!\n", *hccr, *hcor);
+	//printf("zty usb register 0x%x 0x%x!\n", *hccr, *hcor);
 
 	board_ehci_power(index, (init == USB_INIT_DEVICE) ? 0 : 1);
 	if (init == USB_INIT_DEVICE)

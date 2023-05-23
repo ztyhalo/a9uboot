@@ -161,10 +161,8 @@ int saveenv(void)
 		goto fini;
 	}
 
-	printf("Writing to %sMMC(%d)... ", copy ? "redundant " : "",
-	       mmc_env_devno);
-
-	printf("zty write size 0x%x, offset 0X%x!\n",CONFIG_ENV_SIZE, offset);
+	//printf("Writing to %sMMC(%d)... ", copy ? "redundant " : "", mmc_env_devno);
+	//printf("zty write size 0x%x, offset 0X%x!\n",CONFIG_ENV_SIZE, offset);
 	if (write_env(mmc, CONFIG_ENV_SIZE, offset, (u_char *)env_new)) {
 		puts("failed\n");
 		ret = 1;

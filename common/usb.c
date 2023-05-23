@@ -92,7 +92,7 @@ int usb_init(void)
 		 */
 		if (dev)
 			usb_new_device(dev);
-		printf("zty usb new device end!\n");
+		//printf("zty usb new device end!\n");
 
 		if (start_index == dev_index)
 			puts("No USB Device found\n");
@@ -555,7 +555,7 @@ int usb_get_configuration_no(struct usb_device *dev,
 
 	result = usb_get_descriptor(dev, USB_DT_CONFIG, cfgno, buffer, length);
 	debug("get_conf_no %d Result %d, wLength %d\n", cfgno, result, length);
-	printf("zty get_conf_no %d Result %d, wLength %d\n", cfgno, result, length);
+	//printf("zty get_conf_no %d Result %d, wLength %d\n", cfgno, result, length);
 	config->wTotalLength = length; /* validated, with CPU byte order */
 
 	return result;
@@ -948,7 +948,7 @@ int usb_new_device(struct usb_device *dev)
 	 * of that is done for XHCI unlike EHCI.
 	 */
 #ifndef CONFIG_USB_XHCI
-	printf("zty usb get descriptor!\n");
+	//printf("zty usb get descriptor!\n");
 	err = usb_get_descriptor(dev, USB_DT_DEVICE, 0, desc, 64);
 	if (err < 0) {
 		debug("usb_new_device: usb_get_descriptor() failed\n");
@@ -1004,7 +1004,7 @@ int usb_new_device(struct usb_device *dev)
 		break;
 	}
 	dev->devnum = addr;
-	printf("zty dev->maxpacketsize %d!\n", dev->maxpacketsize);
+	//printf("zty dev->maxpacketsize %d!\n", dev->maxpacketsize);
 
 	err = usb_set_address(dev); /* set address */
 
@@ -1046,7 +1046,7 @@ int usb_new_device(struct usb_device *dev)
 	usb_parse_config(dev, tmpbuf, 0);
 	usb_set_maxpacket(dev);
 	/* we set the default configuration here */
-	printf("zty usb set configuration!\n");
+	//printf("zty usb set configuration!\n");
 	if (usb_set_configuration(dev, dev->config.desc.bConfigurationValue)) {
 		printf("failed to set default configuration " \
 			"len %d, status %lX\n", dev->act_len, dev->status);

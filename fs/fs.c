@@ -169,7 +169,7 @@ int fs_set_blk_dev(const char *ifname, const char *dev_part_str, int fstype)
 	}
 #endif
 
-	printf("zty get ifname %s devpart_str %s fstype %d!\n", ifname, dev_part_str, fstype); 
+	//printf("zty get ifname %s devpart_str %s fstype %d!\n", ifname, dev_part_str, fstype); 
 	part = get_device_and_partition(ifname, dev_part_str, &fs_dev_desc,
 					&fs_partition, 1);
 	if (part < 0)

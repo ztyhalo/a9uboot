@@ -19,12 +19,43 @@ can2=y \
 usbotg=y \
 usbhost=y ";
 
+enum hndz_board_num {
+	K256HOST = 0,
+	K256MONITOR = 1,
+	KTC101MAX = 2,
+	TK200KTC101 = 3,
+	ZHONGJI = 4,
+	REBOOTMACHINE = 5,
+	QUITTOUBOOT = 6,
+	BOARD_MAX_NUM = (5+2)
+};
+
+static char boardList[BOARD_MAX_NUM][50]={
+	{" [0] 256 host controller board\n"},
+	{" [1] 256 monitor board\n"},
+	{" [2] ktc101max\n"},
+	{" [3] tk200 ktc101 A inch screen\n"},
+	{" [4] ktc256 zhongji\n"},
+	{" [5] reboot the machine\n"},
+	{" [6] quit to uboot command line\n"},
+};
+
+static char boardListInvert[BOARD_MAX_NUM][50]={
+	{"\033[0m\033[7m [0] 256 host controller board\033[0m\n"},
+	{"\033[0m\033[7m [1] 256 monitor board\033[0m\n"},
+	{"\033[0m\033[7m [2] ktc101max\033[0m\n"},
+	{"\033[0m\033[7m [3] tk200 ktc101 A inch screen\033[0m\n"},
+	{"\033[0m\033[7m [4] ktc256 zhongji\033[0m\n"},
+	{"\033[0m\033[7m [5] reboot the machine\033[0m\n"},
+	{"\033[0m\033[7m [6] quit to uboot command line\033[0m\n"},
+};
+
 static void boardDevConfig(int index)
 {
 	char cmd_buf[512];
 
 	switch(index) {
-		case 0:
+		case K256HOST:
 			snprintf(cmd_buf, 127, "setenv pridis video=mxcfb0:dev=ldb,if=RGB24");
 			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=ldb,if=RGB24");
@@ -35,7 +66,7 @@ static void boardDevConfig(int index)
 			snprintf(cmd_buf, 512, "%s%s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","system=yocto");
 			writeConfigFile(cmd_buf, strlen(cmd_buf));
 		break;
-		case 1:
+		case K256MONITOR:
 			snprintf(cmd_buf, 127, "setenv pridis video=mxcfb0:dev=ldb,if=RGB24");
 			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=ldb,if=RGB24");
@@ -46,7 +77,7 @@ static void boardDevConfig(int index)
 			snprintf(cmd_buf, 512, "%s%s %s %s %s ",boardConfigBuf,"mipicsi=y","audio=n","screenSize=21.5","system=yocto");
 			writeConfigFile(cmd_buf, strlen(cmd_buf));
 			break;
-		case 2:
+		case KTC101MAX:
 			snprintf(cmd_buf, 127, "setenv pridis video=mxcfb0:dev=ldb,bpp32");
 			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=hdmi,1920*1080M@60,if=RGB24");
@@ -57,7 +88,7 @@ static void boardDevConfig(int index)
 			snprintf(cmd_buf, 512, "%s%s %s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","screenSize=12-10.4","system=harmony");
 			writeConfigFile(cmd_buf, strlen(cmd_buf));
 			break;
-		case 3:
+		case TK200KTC101:
 			snprintf(cmd_buf, 127, "setenv pridis video=mxcfb0:dev=ldb,if=RGB24");
 			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=ldb,if=RGB24");
@@ -68,7 +99,7 @@ static void boardDevConfig(int index)
 			snprintf(cmd_buf, 512, "%s%s %s %s %s ",boardConfigBuf,"mipicsi=n","audio=y","screenSize=12-10.4","system=harmony");
 			writeConfigFile(cmd_buf, strlen(cmd_buf));
 			break;
-		case 4:
+		case ZHONGJI:
 			snprintf(cmd_buf, 127, "setenv pridis video=mxcfb0:dev=ldb,if=RGB24");
 			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "setenv secdis video=mxcfb1:dev=ldb,if=RGB24");
@@ -82,13 +113,155 @@ static void boardDevConfig(int index)
 		default:
 			break;
 	}
-
+	printf("hndz board num is %d\n",index);
 	snprintf(cmd_buf, 512, "setenv mmcargs setenv bootargs console=${console},${baudrate} ${smp} root=${mmcroot} ${pridis} ${secdis} ${hndzboard} consoleblank=0");
 	run_command(cmd_buf, 0);
 	run_command("saveenv", 0);
 
 }
+#if 1
+static void menu_shell(void)
+{
+	char c;
+	int previous=BOARD_MAX_NUM,current=0,i=0;
 
+	printf("%s",(char*)&boardListInvert[K256HOST]);
+	printf("%s",(char*)&boardList[K256MONITOR]);
+	printf("%s",(char*)&boardList[KTC101MAX]);
+	printf("%s",(char*)&boardList[TK200KTC101]);
+	printf("%s",(char*)&boardList[ZHONGJI]);
+	printf("%s",(char*)&boardList[REBOOTMACHINE]);
+	printf("%s",(char*)&boardList[QUITTOUBOOT]);
+
+	while(1)
+	{
+		c = getc();
+
+		if (c=='A')
+		{
+			current--;
+			if (current<0)
+				current=0;
+			
+			if ((previous-current)>0) {
+				for (i = 0; i < abs(previous-current); i++)
+				printf("\033[A");
+			} else if ((previous-current)<0) {
+				for (i = 0; i < abs(previous-current); i++)
+				printf("\033[B");
+			}
+
+			if (current==K256HOST){
+				printf("%s",(char*)&boardListInvert[K256HOST]);
+				printf("%s",(char*)&boardList[K256MONITOR]);
+				printf("\033[A");
+				printf("\033[A");
+			}else if (current==K256MONITOR){
+				printf("%s",(char*)&boardListInvert[K256MONITOR]);
+				printf("%s",(char*)&boardList[KTC101MAX]);
+				printf("\033[A");
+				printf("\033[A");
+			}else if (current==KTC101MAX){
+				printf("%s",(char*)&boardListInvert[KTC101MAX]);
+				printf("%s",(char*)&boardList[TK200KTC101]);
+				printf("\033[A");
+				printf("\033[A");
+			}else if (current==TK200KTC101){
+				printf("%s",(char*)&boardListInvert[TK200KTC101]);
+				printf("%s",(char*)&boardList[ZHONGJI]);
+				printf("\033[A");
+				printf("\033[A");
+			}else if (current==ZHONGJI){
+				printf("%s",(char*)&boardListInvert[ZHONGJI]);
+				printf("%s",(char*)&boardList[REBOOTMACHINE]);
+				printf("\033[A");
+				printf("\033[A");
+			}else if (current==REBOOTMACHINE){
+				printf("%s",(char*)&boardListInvert[REBOOTMACHINE]);
+				printf("%s",(char*)&boardList[QUITTOUBOOT]);
+				printf("\033[A");
+				printf("\033[A");
+			}else if (current==QUITTOUBOOT){
+				printf("%s",(char*)&boardListInvert[QUITTOUBOOT]);
+				printf("\033[A");
+				printf("\033[A");
+				printf("%s",(char*)&boardList[REBOOTMACHINE]);
+			}
+			previous=current;
+		}else if (c=='B'){
+			current++;
+			if (current>(BOARD_MAX_NUM-1))
+				current=(BOARD_MAX_NUM-1);
+			if ((previous-current)>0) {
+				for (i = 0; i < abs(previous-current); i++)
+				printf("\033[A");
+			} else if ((previous-current)<0) {
+				for (i = 0; i < abs(previous-current); i++)
+				printf("\033[B");
+			}
+
+			if (current==K256HOST)
+				printf("%s",(char*)&boardListInvert[K256HOST]);
+			else if (current==K256MONITOR){
+				printf("%s",(char*)&boardListInvert[K256MONITOR]);
+				printf("\033[A");
+				printf("\033[A");
+				printf("%s",(char*)&boardList[K256HOST]);
+			}else if (current==KTC101MAX){
+				printf("%s",(char*)&boardListInvert[KTC101MAX]);
+				printf("\033[A");
+				printf("\033[A");
+				printf("%s",(char*)&boardList[K256MONITOR]);
+			}else if (current==TK200KTC101){
+				printf("%s",(char*)&boardListInvert[TK200KTC101]);
+				printf("\033[A");
+				printf("\033[A");
+				printf("%s",(char*)&boardList[KTC101MAX]);
+			}else if (current==ZHONGJI){
+				printf("%s",(char*)&boardListInvert[ZHONGJI]);
+				printf("\033[A");
+				printf("\033[A");
+				printf("%s",(char*)&boardList[TK200KTC101]);
+			}else if (current==REBOOTMACHINE){
+				printf("%s",(char*)&boardListInvert[REBOOTMACHINE]);
+				printf("\033[A");
+				printf("\033[A");
+				printf("%s",(char*)&boardList[ZHONGJI]);
+			}else if (current==QUITTOUBOOT){
+				printf("%s",(char*)&boardListInvert[QUITTOUBOOT]);
+				printf("\033[A");
+				printf("\033[A");
+				printf("%s",(char*)&boardList[REBOOTMACHINE]);
+			}
+			previous=current;
+		}else if (c=='\x0d'){
+
+			for ( i = 0; i < BOARD_MAX_NUM; i++) printf("\n");
+
+			if (current==K256HOST) boardDevConfig(0);
+			else if (current==K256MONITOR) boardDevConfig(1);
+			else if (current==KTC101MAX) boardDevConfig(2);
+			else if (current==TK200KTC101) boardDevConfig(3);
+			else if (current==ZHONGJI) boardDevConfig(4);
+			else if (current==REBOOTMACHINE) run_command("reset", 0);
+			else if (current==QUITTOUBOOT) return;
+
+			for ( i = 0; i < BOARD_MAX_NUM; i++) {
+				if (current==i)
+					printf("%s",(char*)(char*)&boardListInvert[i]);
+				else
+					printf("%s",(char*)(char*)&boardList[i]);
+			}
+			previous=BOARD_MAX_NUM;
+
+		}else {
+			//printf("wwwww error\n");
+		}
+	}
+}
+#endif
+
+#if 0
 static void menu_shell(void)
 {
 	char c;
@@ -140,60 +313,9 @@ static void menu_shell(void)
 		}
 	}
 }
-
+#endif
 
 #if 0
-static void display_set(int index)
-{
-	char c;
-	char cmd_buf[128];
-
-start:
-	printf("[1] HDMI 1920x1080\n");
-	printf("[2] HDMI 1280x720\n");
-	printf("[3] LVDS\n");
-	printf("[4] LCD\n");
-	printf("[0] clear %s setting\n", index==0? "primary displayer": "secondary displayer");
-	printf("[q] quit\n");
-	printf("Please select: ");
-	c = getc();
-	printf("%c\n", c);
-	memset(cmd_buf, 0x0, 128);
-
-	switch(c) {
-		case '1':
-			snprintf(cmd_buf, 127, "setenv %s video=mxcfb%d:dev=hdmi,1920x1080M@60,if=RGB24", index==0? "pridis": "secdis", index);
-			run_command(cmd_buf, 0); 
-			run_command("saveenv", 0); 
-		break;
-		case '2':
-			snprintf(cmd_buf, 127, "setenv %s video=mxcfb%d:dev=hdmi,1280x720M@60,if=RGB24", index==0? "pridis": "secdis", index);
-			run_command(cmd_buf, 0); 
-			run_command("saveenv", 0); 
-			break;
-		case '3':
-			snprintf(cmd_buf, 127, "setenv %s video=mxcfb%d:dev=ldb,if=RGB24", index==0? "pridis": "secdis", index);
-			run_command(cmd_buf, 0); 
-			run_command("saveenv", 0); 
-			break;
-		case '4':
-			snprintf(cmd_buf, 127, "setenv %s video=mxcfb%d:dev=lcd,CLAA-WVGA,if=RGB24", index==0? "pridis": "secdis", index);
-			run_command(cmd_buf, 0); 
-			run_command("saveenv", 0); 
-			break;
-		case '0':
-			snprintf(cmd_buf, 127, "setenv %s", index==0? "pridis": "secdis");
-			run_command(cmd_buf, 0);
-			run_command("saveenv", 0);
-			break;
-		case 'q':
-			break;
-		default:
-			goto start;
-			break;
-	}
-}
-
 static void img_update(void)
 {
 	char c;
@@ -227,55 +349,8 @@ start:
 			break;
 	}
 }
-
-
-static void menu_shell(void)
-{
-	char c;
-	while(1)
-	{
-		printf("[p] primary displayer setting\n");
-		printf("[s] secondary displayer setting\n");
-		printf("[d] env default set\n");
-		printf("[r] reboot the machine\n");
-		//printf("[x] system firmware update !\n");
-		printf("[q] quit to uboot command line\n");
-		printf("Please select: ");
-
-		c = getc();
-		printf("%c\n", c);
-
-		switch(c)
-		{
-			case 'p':
-				display_set(0);
-				break;
-
-			case 's':
-				display_set(1);
-				break;
-
-			case 'd':
-				run_command("env default -f -a", 0);
-				run_command("saveenv", 0);
-				break;
-			case 'r':
-				run_command("reset", 0);
-				break;
-
-			case 'x':
-				img_update();
-				break;
-				
-			case 'q':
-				return;
-
-			default:
-				break;	
-		}
-	}
-}
 #endif
+
 static int do_menu(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 {
 	menu_shell();

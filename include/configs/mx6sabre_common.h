@@ -95,9 +95,9 @@
 #undef CONFIG_CMD_IMLS
 
 #define CONFIG_BOOTDELAY               1
-//#define CONFIG_AUTOBOOT_PROMPT		"Autobooting in %d seconds. Enter \"zlg\" to interrupt Autoboot.\n", bootdelay
-#define CONFIG_AUTOBOOT_PROMPT		"Autobooting in %d seconds. press ENTER to interrupt Autoboot.\n", bootdelay
-#define CONFIG_AUTOBOOT_STOP_STR2 	"\x0d"
+#define CONFIG_AUTOBOOT_PROMPT		"Autobooting in %d seconds. Enter \"hn\" to interrupt Autoboot.\n", bootdelay
+//#define CONFIG_AUTOBOOT_PROMPT		"Autobooting in %d seconds. press ENTER to interrupt Autoboot.\n", bootdelay
+#define CONFIG_AUTOBOOT_STOP_STR2 	"hn"
 #define CONFIG_AUTOBOOT_KEYED		1
 #define CONFIG_CMD_MENU
 

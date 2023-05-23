@@ -60,7 +60,7 @@ int fat_set_blk_dev(block_dev_desc_t *dev_desc, disk_partition_t *info)
 	cur_dev = dev_desc;
 	cur_part_info = *info;
 
-	printf("zty fat_set blkdev start!\n");
+	//printf("zty fat_set blkdev start!\n");
 	/* Make sure it has a valid FAT header */
 	if (disk_read(0, 1, buffer) != 1) {
 		printf("zty read fail!\n");

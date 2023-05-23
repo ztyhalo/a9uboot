@@ -1536,7 +1536,7 @@ int board_ehci_hcd_init(int port)
 {
 	switch (port) {
 	case 0:
-		printf("zty usb otg init!\n");
+		//printf("zty usb otg init!\n");
 		imx_iomux_v3_setup_multiple_pads(usb_otg_pads,
 			ARRAY_SIZE(usb_otg_pads));
 
@@ -1565,11 +1565,11 @@ int board_ehci_power(int port, int on)
 			gpio_direction_output(IMX_GPIO_NR(3, 29), 1);
 		else
 		{
-			printf("zty usb power stop!");
+			//printf("zty usb power stop!");
 			gpio_direction_output(IMX_GPIO_NR(3, 29), 0);
 		}
 		ret = gpio_get_value(IMX_GPIO_NR(3, 29));
-		printf("zty set %d get gpio val 0x%x!\n", on, ret); 
+		//printf("zty set %d get gpio val 0x%x!\n", on, ret); 
 		break;
 	case 1:
 		if (on)
