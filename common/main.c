@@ -501,7 +501,7 @@ void main_loop(void)
 		run_command("setenv initboard init", 0);
 		run_command("saveenv", 0);
 		writeConfigFile(getenv("hndzboard"), strlen(getenv("hndzboard")));
-		printf("wwwww initboard initboard ok\n");
+		//printf("wwwww initboard initboard ok\n");
 	}
 
 	scanConfigFile();
