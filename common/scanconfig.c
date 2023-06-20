@@ -28,7 +28,7 @@
 
 int scanConfigFile(void)
 {
-	char buf[50]={0};
+	char buf[20]={0};
 	char tempbuf[20]={0};
 	const char *filename = "/boardconfig";
 	int len_read,maxNum,bytes;
@@ -40,7 +40,7 @@ int scanConfigFile(void)
 		return 1;
 	}
 
-	memset(tempbuf,0,sizeof(tempbuf));
+//	memset(tempbuf,0,20);
 	//最多扫描100行
 	for (maxNum = 0; maxNum < 100; maxNum++)
 	{
@@ -56,7 +56,7 @@ int scanConfigFile(void)
 			if (bytes>=20) break;
 		} 
 		currentChar=currentChar+bytes+1;
-		memset(tempbuf,0,sizeof(tempbuf));
+		//memset(tempbuf,0,20);
 		memcpy(tempbuf,buf,bytes+1);
 		sprintf(bootargs_buf,"%s %s",bootargs_buf,tempbuf);
 
@@ -72,7 +72,7 @@ int writeConfigFile(char *buf, unsigned long byteNum)
 	const char *filename = "boardconfig";
 	block_dev_desc_t *dev_desc = NULL;
 	disk_partition_t info;
-	int dev = 0;
+	//int dev = 0;
 	int part = 1;
 	int i=0;
 char writeBuf[512]={0};
@@ -89,7 +89,7 @@ for ( i = 0; i < byteNum; i++)
 	if (part < 0)
 		return 1;
 
-	dev = dev_desc->dev;
+	//dev = dev_desc->dev;
 
 	if (fat_set_blk_dev(dev_desc, &info) != 0) {
 		printf("\n** Unable to use for fatwrite to mmc 0:1**\n");

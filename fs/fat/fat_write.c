@@ -963,7 +963,7 @@ static int do_fat_write(const char *filename, void *buffer,
 	int cursect;
 	int ret = -1, name_len;
 	char l_filename[VFAT_MAXLEN_BYTES];
-	int write_size = size;
+//	int write_size = size;
 int actwrite = size;
 	dir_curclust = 0;
 
@@ -1042,7 +1042,7 @@ int actwrite = size;
 				ret = check_overflow(mydata, start_cluster,
 							size);
 		if (ret) {
-					printf("Error: %llu overflow\n", size);
+					printf("Error: %lu overflow\n", size);
 			goto exit;
 		}
 			}
@@ -1064,7 +1064,7 @@ int actwrite = size;
 
 			ret = check_overflow(mydata, start_cluster, size);
 		if (ret) {
-				printf("Error: %llu overflow\n", size);
+				printf("Error: %lu overflow\n", size);
 			goto exit;
 		}
 
@@ -1084,7 +1084,7 @@ int actwrite = size;
 
 		ret = check_overflow(mydata, start_cluster, size);
 		if (ret) {
-				printf("Error: %llu overflow\n", size);
+				printf("Error: %lu overflow\n", size);
 			goto exit;
 			}
 		} else {
@@ -1098,12 +1098,12 @@ int actwrite = size;
 		retdent = empty_dentptr;
 	}
 
-	ret = set_contents(mydata, retdent, buffer, size, &actwrite);
-		if (ret < 0) {
-			printf("Error: writing contents\n");
-			goto exit;
-		}
-	debug("attempt to write 0x%llx bytes\n", actwrite);
+	ret = set_contents(mydata, retdent, (__u8 *)buffer, size, &actwrite);
+	if (ret < 0) {
+		printf("Error: writing contents\n");
+		goto exit;
+	}
+	debug("attempt to write 0x%lx bytes\n", actwrite);
 
 		/* Flush fat buffer */
 		ret = flush_fat_buffer(mydata);

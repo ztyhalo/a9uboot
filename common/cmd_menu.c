@@ -123,6 +123,7 @@ static void boardDevConfig(int index)
 static void menu_shell(void)
 {
 	char c;
+	char cmd_buf[512];
 	int previous=BOARD_MAX_NUM,current=0,i=0;
 
 	printf("%s",(char*)&boardListInvert[K256HOST]);
@@ -254,6 +255,17 @@ static void menu_shell(void)
 			}
 			previous=BOARD_MAX_NUM;
 
+		}else if (c=='u'){
+			snprintf(cmd_buf, 127, "usb start");
+			run_command(cmd_buf, 0); 
+			snprintf(cmd_buf, 127, "run mmcargs");
+			run_command(cmd_buf, 0); 
+			snprintf(cmd_buf, 127, "fatload usb 0:1 0x12000000 /hndzz/file/zImage");
+			run_command(cmd_buf, 0); 
+			snprintf(cmd_buf, 127, "fatload usb 0:1 0x18000000 /hndzz/file/imx6dl-sabresd.dtb");
+			run_command(cmd_buf, 0); 
+			snprintf(cmd_buf, 127, "bootz 12000000 - 18000000");
+			run_command(cmd_buf, 0); 
 		}else {
 			//printf("wwwww error\n");
 		}

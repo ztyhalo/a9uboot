@@ -220,7 +220,7 @@ int ext4fs_probe(block_dev_desc_t *fs_dev_desc,
 int ext4_read_file(const char *filename, void *buf, int offset, int len)
 {
 	int file_len;
-	int len_read;
+//	int len_read;
 
 	if (offset != 0) {
 		//printf("** Cannot support non-zero offset **\n");

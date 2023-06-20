@@ -207,7 +207,7 @@ int stdio_init (void)
 	drv_lcd_init ();
 #endif
 #if defined(CONFIG_VIDEO) || defined(CONFIG_CFB_CONSOLE)
-	drv_video_init ();
+//	drv_video_init ();
 #endif
 #ifdef CONFIG_KEYBOARD
 	drv_keyboard_init ();

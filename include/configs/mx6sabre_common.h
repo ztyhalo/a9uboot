@@ -69,17 +69,17 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
-#define CONFIG_FEC_MXC
-#define CONFIG_MII
-#define IMX_FEC_BASE			ENET_BASE_ADDR
-#define CONFIG_FEC_XCV_TYPE		RGMII
-#define CONFIG_ETHPRIME			"FEC"
-#define CONFIG_FEC_MXC_PHYADDR		3
+//#define CONFIG_CMD_NET
+//#define CONFIG_FEC_MXC
+//#define CONFIG_MII
+//#define IMX_FEC_BASE			ENET_BASE_ADDR
+//#define CONFIG_FEC_XCV_TYPE		RGMII
+//#define CONFIG_ETHPRIME			"FEC"
+//#define CONFIG_FEC_MXC_PHYADDR		3
 
-#define CONFIG_PHYLIB
+//#define CONFIG_PHYLIB
 //#define CONFIG_PHY_ATHEROS
-#define CONFIG_PHY_MICREL
+//#define CONFIG_PHY_MICREL
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -182,8 +182,6 @@
 	"clear_aw=i2c mw 40 81 0\0" \
 	"pridis=video=mxcfb0:dev=ldb,if=RGB24\0" \
 	"secdis=video=mxcfb1:dev=ldb,if=RGB24\0" \
-	"hndzboard=hc595=y spi1=y spi2=y usdhc1=y usdhc3=y i2c1=y i2c2=y i2c3=y uart1=y uart2=y uart3=y uart4=y uart5=y \
-can1=y can2=y usbotg=y usbhost=y mipicsi=y audio=n screenSize=21.5 system=yocto \0" \
 	"update_sd_firmware=" \
 		"if test ${ip_dyn} = yes; then " \
 			"setenv get_cmd dhcp; " \

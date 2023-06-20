@@ -215,7 +215,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	mdelay(1);
 
 	/* Do board specific initialization */
-	printf("zty board init index %d!\n", index);
+	//printf("zty board init index %d!\n", index);
 	board_ehci_hcd_init(index);
 
 	usb_power_config(index);

@@ -61,6 +61,7 @@ static int      retry_time = -1; /* -1 so can call readline before main_loop */
 #endif
 
 #define	endtick(seconds) (get_ticks() + (uint64_t)(seconds) * get_tbclk())
+#define	endtick_half(seconds) (get_ticks() + (uint64_t)(seconds) * get_tbclk()/2)
 
 #ifndef CONFIG_BOOT_RETRY_MIN
 #define CONFIG_BOOT_RETRY_MIN CONFIG_BOOT_RETRY_TIME
@@ -80,7 +81,7 @@ extern void mdm_init(void); /* defined in board.c */
 static int abortboot_keyed(int bootdelay)
 {
 	int abort = 0;
-	uint64_t etime = endtick(bootdelay);
+	uint64_t etime = endtick_half(bootdelay);
 	struct {
 		char* str;
 		u_int len;
@@ -160,7 +161,7 @@ static int abortboot_keyed(int bootdelay)
 			    memcmp (presskey + presskey_len - delaykey[i].len,
 				    delaykey[i].str,
 				    delaykey[i].len) == 0) {
-				debug_bootkeys("got %skey\n",
+				printf("wwww got %skey\n",
 					       delaykey[i].retry ? "delay" :
 					       "stop");
 

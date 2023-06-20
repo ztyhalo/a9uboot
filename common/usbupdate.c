@@ -26,7 +26,7 @@ void imx6_usbupdate(void)
 {
 	cmd_tbl_t *bcmd;
 //	char *rsargs;
-	char *tmp = NULL;
+//	char *tmp = NULL;
 	char ka[16];
 	char fs[16];
 	char dtb[16];
@@ -44,8 +44,8 @@ void imx6_usbupdate(void)
 	/* Check if we have a USB storage device and load image */
 	if(mmc_load_rescue_image(MD5_LOAD_ADDR))
 	{
-	if (load_rescue_image(MD5_LOAD_ADDR))
-		return;
+		if (load_rescue_image(MD5_LOAD_ADDR))
+			return;
 		else
 		{
 			sprintf(profile, "%s updatedev=usb", IMX_BOOTARGS);
@@ -130,8 +130,8 @@ static int load_rescue_image(ulong addr)
 	//strncpy(fwdir, tmp ? tmp : FW_DIR, sizeof(fwdir));
 	//fwdir[sizeof(fwdir) - 1] = 0; /* Terminate string */
 
-	printf(LOG_PREFIX "Checking for firmware image directory  on USB"
-		" storage...\n");
+//	printf(LOG_PREFIX "Checking for firmware image directory  on USB"
+//		" storage...\n");
 	//usb_stop();
 	if (usb_init() != 0)
 		return 1;
@@ -311,30 +311,30 @@ ERROR:
 
 static int mmc_load_rescue_image(ulong addr)
 {
-	disk_partition_t info;
+//	disk_partition_t info;
 	int size ;
 	int size1;
-	int devno;
-	int partno;
-	int i;
+//	int devno;
+//	int partno;
+//	int i;
 	char fwdir[64];
 	char md5[64];
 	char nxri[128];
-	char cmd[32];
-	char mmcblk[32];
+//	char cmd[32];
+//	char mmcblk[32];
 
 	char dev[7];
 	char dev1[7];
 	char addr_str[16];
 	char * const argv[6] = { "fatload", "mmc", dev, addr_str, nxri, NULL };
 	char * const argv1[6] = { "fatload", "mmc", dev1, addr_str, nxri, NULL };
-	block_dev_desc_t *stor_dev = NULL;
+//	block_dev_desc_t *stor_dev = NULL;
 	cmd_tbl_t *bcmd;
 	int updatemark = 0;
 	
     //init sd1
-	sprintf(cmd, "mmc dev %d:1", 0);
-	run_command(cmd, 0);
+//	sprintf(cmd, "mmc dev %d:1", 0);
+//	run_command(cmd, 0);
 
 	/* Get name of firmware directory */
 	//tmp = getenv("fw-dir");
@@ -343,8 +343,8 @@ static int mmc_load_rescue_image(ulong addr)
 	//strncpy(fwdir, tmp ? tmp : FW_DIR, sizeof(fwdir));
 	//fwdir[sizeof(fwdir) - 1] = 0; /* Terminate string */
 
-	printf("Checking for firmware image directory  on mmc"
-		" storage...\n");
+//	printf("Checking for firmware image directory  on mmc"
+//		" storage...\n");
 
 
 	/* Load the rescue image */
@@ -361,8 +361,8 @@ static int mmc_load_rescue_image(ulong addr)
 	//sprintf(dev, "%d", devno);
 	sprintf(addr_str, "%lx", addr);
 
-	printf("fat_fsload device='%s', addr='%s', file: %s\n",
-		dev, addr_str, nxri);
+//	printf("fat_fsload device='%s', addr='%s', file: %s\n",
+//		dev, addr_str, nxri);
 
 	if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
 		printf("mmc no md5 file!\n");

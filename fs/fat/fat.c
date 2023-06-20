@@ -878,7 +878,7 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 		debug("Error: allocating memory\n");
 		return -1;
 	}
-
+#if 0
 	if (vfat_enabled)
 		debug("VFAT Support enabled\n");
 
@@ -891,7 +891,7 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 	       mydata->rootdir_sect * mydata->sect_size, mydata->data_begin);
 	debug("Sector size: %d, cluster size: %d\n", mydata->sect_size,
 	      mydata->clust_size);
-
+#endif
 	/* "cwd" is always the root... */
 	while (ISDIRDELIM(*filename))
 		filename++;
@@ -922,8 +922,8 @@ do_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 		int i;
 
 		if (j == 0) {
-			debug("FAT read sect=%d, clust_size=%d, DIRENTSPERBLOCK=%zd\n",
-				cursect, mydata->clust_size, DIRENTSPERBLOCK);
+			//debug("FAT read sect=%d, clust_size=%d, DIRENTSPERBLOCK=%zd\n",
+			//	cursect, mydata->clust_size, DIRENTSPERBLOCK);
 
 			if (disk_read(cursect,
 					(mydata->fatsize == 32) ?
@@ -1253,7 +1253,7 @@ int fat_exists(const char *filename)
 long file_fat_read_at(const char *filename, unsigned long pos, void *buffer,
 		      unsigned long maxsize)
 {
-	debug("reading %s\n", filename);
+	//debug("reading %s\n", filename);
 	return do_fat_read_at(filename, pos, buffer, maxsize, LS_NO, 0);
 }
 

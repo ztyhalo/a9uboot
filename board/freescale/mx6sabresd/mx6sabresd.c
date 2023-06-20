@@ -56,10 +56,10 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define ENET_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS)
-
-//#define ENET_REF_CLK_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
+#if 0
+#define ENET_REF_CLK_PAD_CTRL  (PAD_CTL_PUS_100K_UP |			\
 	PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_HYS | PAD_CTL_SRE_FAST)
-
+#endif
 #define ENET_REF_CLK_PAD_CTRL  (                        \
         PAD_CTL_SPEED_MED | PAD_CTL_DSE_40ohm | PAD_CTL_SRE_FAST)
 
@@ -1283,7 +1283,7 @@ int board_early_init_f(void)
 
 	return 0;
 }
-
+/*
 void dcp5k_usb_hub_reset()
 {
 	iomux_v3_cfg_t const hub_reset_pads = MX6_PAD_EIM_D26__GPIO3_IO26 | MUX_PAD_CTRL(NO_PAD_CTRL);
@@ -1293,7 +1293,7 @@ void dcp5k_usb_hub_reset()
 	udelay(2000);
 	gpio_set_value(IMX_GPIO_NR(3, 26), 1);
 }
-
+*/
 int board_init(void)
 {
 
@@ -1365,7 +1365,7 @@ int board_late_init(void)
 
 	setup_i2c(0, CONFIG_SYS_I2C_SPEED,
 			0x7f, &i2c_pad_info0);
-	ret = setup_pmic_voltages();
+	//ret = setup_pmic_voltages();
 	if (ret)
 		return -1;
 #endif

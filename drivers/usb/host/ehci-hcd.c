@@ -676,7 +676,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	case USB_REQ_SET_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
 	case USB_REQ_CLEAR_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
 		status_reg = ehci_get_portsc_register(ctrl->hcor, port - 1);
-		debug("zty status reg 0x%x!\n", status_reg);
+		//debug("zty status reg 0x%x!\n", status_reg);
 		if (!status_reg)
 			return -1;
 		break;

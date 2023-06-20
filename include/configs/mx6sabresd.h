@@ -91,7 +91,7 @@
 #endif
 #endif /* CONFIG_SPLASH_SCREEN && CONFIG_MXC_EPDC */
 
-#define DS2460_ENCRYPT
+//#define DS2460_ENCRYPT
 #define CONFIG_HW_WATCHDOG
 
 #endif                         /* __MX6QSABRESD_CONFIG_H */
