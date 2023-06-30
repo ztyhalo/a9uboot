@@ -182,6 +182,8 @@
 	"clear_aw=i2c mw 40 81 0\0" \
 	"pridis=video=mxcfb0:dev=ldb,if=RGB24\0" \
 	"secdis=video=mxcfb1:dev=ldb,if=RGB24\0" \
+	"hndzboard=hc595=y spi1=y spi2=y usdhc1=y usdhc3=y i2c1=y i2c2=y i2c3=y uart1=y uart2=y uart3=y uart4=y uart5=y \
+can1=y can2=y usbotg=y usbhost=y mipicsi=n audio=y system=yocto \0" \
 	"update_sd_firmware=" \
 		"if test ${ip_dyn} = yes; then " \
 			"setenv get_cmd dhcp; " \

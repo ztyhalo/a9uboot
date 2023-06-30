@@ -441,7 +441,7 @@ static void process_boot_delay(void)
 #endif /* CONFIG_MENUKEY */
 }
 #endif /* CONFIG_BOOTDELAY */
-
+extern int writeConfigFile(char *buf, unsigned long byteNum);
 void main_loop(void)
 {
 #ifndef CONFIG_SYS_HUSH_PARSER

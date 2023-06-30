@@ -1,6 +1,7 @@
 #include <common.h>
 #include <command.h>
 
+extern int writeConfigFile(char *buf, unsigned long byteNum);
 char boardConfigBuf[] =  "hc595=y \
 spi1=y \
 spi2=y \
@@ -265,6 +266,21 @@ static void menu_shell(void)
 			snprintf(cmd_buf, 127, "fatload usb 0:1 0x18000000 /hndzz/file/imx6dl-sabresd.dtb");
 			run_command(cmd_buf, 0); 
 			snprintf(cmd_buf, 127, "bootz 12000000 - 18000000");
+			run_command(cmd_buf, 0); 
+		}else if (c=='p'){
+			snprintf(cmd_buf, 127, "usb start");
+			run_command(cmd_buf, 0); 
+			snprintf(cmd_buf, 127, "run mmcargs");
+			run_command(cmd_buf, 0); 
+			snprintf(cmd_buf, 127, "fatload usb 0:1 0x12000000 /hndzz/file/zImage");
+			run_command(cmd_buf, 0); 
+			snprintf(cmd_buf, 127, "fatload usb 0:1 0x12c00000 /hndzz/file/uramdisk.img");
+			run_command(cmd_buf, 0); 
+			snprintf(cmd_buf, 127, "fatload usb 0:1 0x18000000 /hndzz/file/imx6dl-sabresd.dtb");
+			run_command(cmd_buf, 0); 
+			snprintf(cmd_buf, 127, "setenv bootargs console=ttymxc0,115200 rdinit=/sbin/init");
+			run_command(cmd_buf, 0); 
+			snprintf(cmd_buf, 127, "bootz 0x12000000 0x12c00000 0x18000000");
 			run_command(cmd_buf, 0); 
 		}else {
 			//printf("wwwww error\n");

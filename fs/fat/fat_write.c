@@ -681,21 +681,21 @@ static int clear_fatent(fsdata *mydata, __u32 entry)
  */
 static int
 set_contents(fsdata *mydata, dir_entry *dentptr, __u8 *buffer,
-	      loff_t maxsize, loff_t *gotsize)
+	      unsigned long maxsize, unsigned long *gotsize)
 {
-	loff_t filesize = FAT2CPU32(dentptr->size);
+	unsigned long filesize = FAT2CPU32(dentptr->size);
 	unsigned int bytesperclust = mydata->clust_size * mydata->sect_size;
 	__u32 curclust = START(dentptr);
 	__u32 endclust = 0, newclust = 0;
-	loff_t actsize;
+	unsigned long actsize;
 
 	*gotsize = 0;
-	debug("Filesize: %llu bytes\n", filesize);
+	debug("Filesize: %lu bytes\n", filesize);
 
 	if (maxsize > 0 && filesize > maxsize)
 		filesize = maxsize;
 
-	debug("%llu bytes\n", filesize);
+	debug("%lu bytes\n", filesize);
 
 	if (!curclust) {
 		if (filesize) {
@@ -964,7 +964,7 @@ static int do_fat_write(const char *filename, void *buffer,
 	int ret = -1, name_len;
 	char l_filename[VFAT_MAXLEN_BYTES];
 //	int write_size = size;
-int actwrite = size;
+	unsigned long actwrite = size;
 	dir_curclust = 0;
 
 	if (read_bootsectandvi(&bs, &volinfo, &mydata->fatsize)) {
@@ -1127,4 +1127,8 @@ int file_fat_write(const char *filename, void *buffer, unsigned long maxsize)
 {
 	printf("writing %s\n", filename);
 	return do_fat_write(filename, buffer, maxsize);
+}
+int fat_write_file(const char *filename, void *buf, int offset, int len)
+{
+	return file_fat_write(filename, buf, len);
 }

@@ -213,6 +213,7 @@ static void setup_iomux_enet(void)
 #ifdef CONFIG_HW_WATCHDOG
 	hw_watchdog_reset();
 #endif
+#if 0
 	puts("Reset PHY!\n");
 	/* Reset KSZ9031 PHY */
 	//gpio_direction_output(IMX_GPIO_NR(1, 25) , 0);
@@ -223,6 +224,7 @@ static void setup_iomux_enet(void)
 	gpio_set_value(IMX_GPIO_NR(3, 18), 1);
 	puts("Reset gpio3_18!\n");
 	udelay(20000);
+#endif
 #ifdef CONFIG_HW_WATCHDOG
 	hw_watchdog_reset();
 #endif
@@ -348,7 +350,7 @@ static void setup_iomux_uart(void)
 }
 
 #ifdef CONFIG_SYS_I2C_MXC
-
+#if 0
 /* set all switches APS in normal and PFM mode in standby */
 static int setup_pmic_mode(int chip)
 {
@@ -478,7 +480,7 @@ static int setup_pmic_voltages(void)
 
 	return 0;
 }
-
+#endif
 #ifdef CONFIG_LDO_BYPASS_CHECK
 void ldo_mode_set(int ldo_bypass)
 {
@@ -1556,7 +1558,7 @@ int board_ehci_hcd_init(int port)
 
 int board_ehci_power(int port, int on)
 {
-	int ret = 0;
+	//int ret = 0;
 	switch (port) {
 	case 0:
 		
@@ -1568,7 +1570,7 @@ int board_ehci_power(int port, int on)
 			//printf("zty usb power stop!");
 			gpio_direction_output(IMX_GPIO_NR(3, 29), 0);
 		}
-		ret = gpio_get_value(IMX_GPIO_NR(3, 29));
+		//ret =  gpio_get_value(IMX_GPIO_NR(3, 29));
 		//printf("zty set %d get gpio val 0x%x!\n", on, ret); 
 		break;
 	case 1:
