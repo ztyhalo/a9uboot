@@ -122,7 +122,7 @@ static int load_rescue_image(ulong addr)
 	cmd_tbl_t *bcmd;
 	int updatemark = 0;
 	
-
+	memset(fwdir, 0, sizeof(fwdir));
 	/* Get name of firmware directory */
 	//tmp = getenv("fw-dir");
 
@@ -326,8 +326,8 @@ static int mmc_load_rescue_image(ulong addr)
 	char dev[7];
 	char dev1[7];
 	char addr_str[16];
-	char * const argv[6] = { "fatload", "mmc", dev, addr_str, nxri, NULL };
-	char * const argv1[6] = { "fatload", "mmc", dev1, addr_str, nxri, NULL };
+	char * const argv[6] = { "ext4load", "mmc", dev, addr_str, nxri, NULL };
+	char * const argv1[6] = { "ext4load", "mmc", dev1, addr_str, nxri, NULL };
 //	block_dev_desc_t *stor_dev = NULL;
 	cmd_tbl_t *bcmd;
 	int updatemark = 0;
@@ -348,9 +348,9 @@ static int mmc_load_rescue_image(ulong addr)
 
 
 	/* Load the rescue image */
-	bcmd = find_cmd("fatload");
+	bcmd = find_cmd("ext4load");
 	if (!bcmd) {
-		printf(LOG_PREFIX "Error - 'fatload' command not present.\n");
+		printf(LOG_PREFIX "Error - 'ext4load' command not present.\n");
 
 		return 1;
 	}
@@ -364,7 +364,7 @@ static int mmc_load_rescue_image(ulong addr)
 //	printf("fat_fsload device='%s', addr='%s', file: %s\n",
 //		dev, addr_str, nxri);
 
-	if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
+	if (do_ext4_load(bcmd, 0, 5, argv) != 0) {
 		printf("mmc no md5 file!\n");
 		return 1;
 	}
@@ -381,11 +381,11 @@ static int mmc_load_rescue_image(ulong addr)
 		printf("\n");
 		*/
 		//
-		bcmd = find_cmd("ext4load");
-		if (!bcmd) {
-			printf(LOG_PREFIX "Error - 'ext4load' command not present.\n");
-			return 1;
-		}
+//		bcmd = find_cmd("ext4load");
+//		if (!bcmd) {
+//			printf(LOG_PREFIX "Error - 'ext4load' command not present.\n");
+//			return 1;
+//		}
 		sprintf(nxri, "%s", MD5_FILE_NAME1);
 		sprintf(dev1, "%d:%d", MD5_MMC_DEV, MD5_MMC_DEV_PART);
 		sprintf(addr_str, "%lx", (ulong)MD5_LOAD_ADDR1);
@@ -417,25 +417,25 @@ static int mmc_load_rescue_image(ulong addr)
 			sprintf(nxri, "%s", UPDATE_KERNEL);
 			sprintf(addr_str, "%lx", (ulong)KERNEL_LOAD_ADDR);
 			
-			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
+			USB_DEBUG("ext4load device='%s', addr='%s', file: %s\n",
 				"mmc", addr_str, nxri);
-			if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
+			if (do_ext4_load(bcmd, 0, 5, argv) != 0) {
 				goto MMCERROR;
 			}
 			sprintf(nxri, "%s", UPDATE_ROOTFS);
 			sprintf(addr_str, "%lx", (ulong)FS_LOAD_ADDR);
 			
-			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
+			USB_DEBUG("ext4load device='%s', addr='%s', file: %s\n",
 				"mmc", addr_str, nxri);
-			if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
+			if (do_ext4_load(bcmd, 0, 5, argv) != 0) {
 				goto MMCERROR;
 			}
 			sprintf(nxri, "%s", UPDATE_DTB);
 			sprintf(addr_str, "%lx", (ulong)DTB_LOAD_ADDR);
 			
-			USB_DEBUG("fat_fsload device='%s', addr='%s', file: %s\n",
+			USB_DEBUG("ext4load device='%s', addr='%s', file: %s\n",
 				"mmc", addr_str, nxri);
-			if (do_fat_fsload(bcmd, 0, 5, argv) != 0) {
+			if (do_ext4_load(bcmd, 0, 5, argv) != 0) {
 				goto MMCERROR;
 			}
 			
