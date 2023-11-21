@@ -16,19 +16,19 @@ if [[ $1 == "clean" ]]; then
      exit 0 
 else
 
-	if [[ $1 == "k256host" ]]; then
-		cp mx6sabre_common_k256host.h ./include/configs/mx6sabre_common.h
-	elif [[ $1 == "k256monitor" ]]; then
-		cp mx6sabre_common_k256monitor.h ./include/configs/mx6sabre_common.h
-	elif [[ $1 == "ktc101max" ]]; then
-		cp mx6sabre_common_ktc101max.h ./include/configs/mx6sabre_common.h
-	elif [[ $1 == "tk200_ktc101" ]]; then
-		cp mx6sabre_common_tk200_ktc101.h ./include/configs/mx6sabre_common.h
-	elif [[ $1 == "k256zhongji" ]]; then
-		cp mx6sabre_common_k256zhongji.h ./include/configs/mx6sabre_common.h
-	else
-		cp mx6sabre_common.h ./include/configs/mx6sabre_common.h
-	fi
+#	if [[ $1 == "k256host" ]]; then
+#		cp mx6sabre_common_k256host.h ./include/configs/mx6sabre_common.h
+#	elif [[ $1 == "k256monitor" ]]; then
+#		cp mx6sabre_common_k256monitor.h ./include/configs/mx6sabre_common.h
+#	elif [[ $1 == "ktc101max" ]]; then
+#		cp mx6sabre_common_ktc101max.h ./include/configs/mx6sabre_common.h
+#	elif [[ $1 == "tk200_ktc101" ]]; then
+#		cp mx6sabre_common_tk200_ktc101.h ./include/configs/mx6sabre_common.h
+#	elif [[ $1 == "k256zhongji" ]]; then
+#		cp mx6sabre_common_k256zhongji.h ./include/configs/mx6sabre_common.h
+#	else
+#		cp mx6sabre_common.h ./include/configs/mx6sabre_common.h
+#	fi
 
 
 	echo "build M6708U-1GLI-T u-boot.imx";

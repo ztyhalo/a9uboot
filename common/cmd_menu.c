@@ -1,6 +1,6 @@
 #include <common.h>
 #include <command.h>
-
+#if 0
 extern int writeConfigFile(char *buf, unsigned long byteNum);
 char boardConfigBuf[] =  "hc595=y \
 spi1=y \
@@ -120,7 +120,7 @@ static void boardDevConfig(int index)
 	run_command("saveenv", 0);
 
 }
-#if 1
+
 static void menu_shell(void)
 {
 	char c;
@@ -288,6 +288,171 @@ static void menu_shell(void)
 	}
 }
 #endif
+
+
+enum uboot_cmd_num {
+	REBOOTMACHINE = 0,
+	QUITTOUBOOT = 1,
+	START_UPAN_KERNEL = 2,
+	START_UPAN_SYS = 3,
+	CMD_MAX_NUM
+};
+
+static char ubootCmd[CMD_MAX_NUM][50]={
+	{" [0] reboot the machine\n"},
+	{" [1] quit to uboot command line\n"},
+	{" [2] start u pan kernel\n"},
+	{" [3] start u pan sys\n"},
+};
+
+static char ubootCmdInvert[CMD_MAX_NUM][50]={
+	{"\033[0m\033[7m [0] reboot the machine\033[0m\n"},
+	{"\033[0m\033[7m [1] quit to uboot command line\033[0m\n"},
+	{"\033[0m\033[7m [2] start u pan kernel\033[0m\n"},
+	{"\033[0m\033[7m [3] start u pan sys\033[0m\n"},
+};
+
+static void menu_shell(void)
+{
+	char c;
+	char cmd_buf[512];
+	int previous=CMD_MAX_NUM,current=0,i=0;
+
+	printf("%s",(char*)&ubootCmdInvert[REBOOTMACHINE]);
+	printf("%s",(char*)&ubootCmd[QUITTOUBOOT]);
+	printf("%s",(char*)&ubootCmd[START_UPAN_KERNEL]);
+	printf("%s",(char*)&ubootCmd[START_UPAN_SYS]);
+
+	while(1)
+	{
+		c = getc();
+
+		if (c=='A')
+		{
+			current--;
+			if (current<0)
+				current=0;
+			
+			if ((previous-current)>0) {
+				for (i = 0; i < abs(previous-current); i++)
+				printf("\033[A");
+			} else if ((previous-current)<0) {
+				for (i = 0; i < abs(previous-current); i++)
+				printf("\033[B");
+			}
+
+			if (current==REBOOTMACHINE){
+				printf("%s",(char*)&ubootCmdInvert[REBOOTMACHINE]);
+				printf("%s",(char*)&ubootCmd[QUITTOUBOOT]);
+				printf("\033[A");
+				printf("\033[A");
+			}else if (current==QUITTOUBOOT){
+				printf("%s",(char*)&ubootCmdInvert[QUITTOUBOOT]);
+				printf("%s",(char*)&ubootCmd[START_UPAN_KERNEL]);
+				printf("\033[A");
+				printf("\033[A");
+			}else if (current==START_UPAN_KERNEL){
+				printf("%s",(char*)&ubootCmdInvert[START_UPAN_KERNEL]);
+				printf("%s",(char*)&ubootCmd[START_UPAN_SYS]);
+				printf("\033[A");
+				printf("\033[A");
+			}else if (current==START_UPAN_SYS){
+				printf("%s",(char*)&ubootCmdInvert[START_UPAN_SYS]);
+				printf("%s",(char*)&ubootCmd[START_UPAN_KERNEL]);
+				printf("\033[A");
+				printf("\033[A");
+			}
+			previous=current;
+		}
+		else if (c=='B'){
+			current++;
+			if (current>(CMD_MAX_NUM-1))
+				current=(CMD_MAX_NUM-1);
+			if ((previous-current)>0) {
+				for (i = 0; i < abs(previous-current); i++)
+				printf("\033[A");
+			} else if ((previous-current)<0) {
+				for (i = 0; i < abs(previous-current); i++)
+				printf("\033[B");
+			}
+
+			if (current==REBOOTMACHINE)
+				printf("%s",(char*)&ubootCmdInvert[REBOOTMACHINE]);
+			else if (current==QUITTOUBOOT){
+				printf("%s",(char*)&ubootCmdInvert[QUITTOUBOOT]);
+				printf("\033[A");
+				printf("\033[A");
+				printf("%s",(char*)&ubootCmd[REBOOTMACHINE]);
+			}else if (current==START_UPAN_KERNEL){
+				printf("%s",(char*)&ubootCmdInvert[START_UPAN_KERNEL]);
+				printf("\033[A");
+				printf("\033[A");
+				printf("%s",(char*)&ubootCmd[QUITTOUBOOT]);
+			}else if (current==START_UPAN_SYS){
+				printf("%s",(char*)&ubootCmdInvert[START_UPAN_SYS]);
+				printf("\033[A");
+				printf("\033[A");
+				printf("%s",(char*)&ubootCmd[START_UPAN_KERNEL]);
+			}
+			previous=current;
+		}
+		else if (c=='\x0d'){
+
+			for ( i = 0; i < CMD_MAX_NUM; i++) printf("\n");
+
+			if (current==REBOOTMACHINE){
+				run_command("reset", 0);
+			}
+			else if (current==QUITTOUBOOT){
+				return;
+			}
+			else if (current==START_UPAN_KERNEL)
+			{
+				snprintf(cmd_buf, 127, "usb start");
+				run_command(cmd_buf, 0); 
+				snprintf(cmd_buf, 127, "run mmcargs");
+				run_command(cmd_buf, 0); 
+				snprintf(cmd_buf, 127, "fatload usb 0:1 0x12000000 /hndzz/file/zImage");
+				run_command(cmd_buf, 0); 
+				snprintf(cmd_buf, 127, "fatload usb 0:1 0x18000000 /hndzz/file/imx6dl-sabresd.dtb");
+				run_command(cmd_buf, 0); 
+				snprintf(cmd_buf, 127, "bootz 12000000 - 18000000");
+				run_command(cmd_buf, 0); 
+			}
+			else if (current==START_UPAN_SYS)
+			{
+				snprintf(cmd_buf, 127, "usb start");
+				run_command(cmd_buf, 0); 
+				snprintf(cmd_buf, 127, "run mmcargs");
+				run_command(cmd_buf, 0); 
+				snprintf(cmd_buf, 127, "fatload usb 0:1 0x12000000 /hndzz/file/zImage");
+				run_command(cmd_buf, 0); 
+				snprintf(cmd_buf, 127, "fatload usb 0:1 0x12c00000 /hndzz/file/uramdisk.img");
+				run_command(cmd_buf, 0); 
+				snprintf(cmd_buf, 127, "fatload usb 0:1 0x18000000 /hndzz/file/imx6dl-sabresd.dtb");
+				run_command(cmd_buf, 0); 
+				snprintf(cmd_buf, 127, "setenv bootargs console=ttymxc0,115200 rdinit=/sbin/init");
+				run_command(cmd_buf, 0); 
+				snprintf(cmd_buf, 127, "bootz 0x12000000 0x12c00000 0x18000000");
+				run_command(cmd_buf, 0); 
+			}
+
+
+			for ( i = 0; i < CMD_MAX_NUM; i++) {
+				if (current==i)
+					printf("%s",(char*)(char*)&ubootCmdInvert[i]);
+				else
+					printf("%s",(char*)(char*)&ubootCmd[i]);
+			}
+			previous=CMD_MAX_NUM;
+
+		}
+		else {
+			//printf("wwwww error\n");
+		}
+	}
+}
+
 
 #if 0
 static void menu_shell(void)

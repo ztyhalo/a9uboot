@@ -197,7 +197,7 @@
 		"fi\0" \
 	"smp=" CONFIG_SYS_NOSMP "\0"\
 	"mmcargs=setenv bootargs console=${console},${baudrate} ${smp} " \
-		"root=${mmcroot} ${pridis} ${secdis} ${hndzboard} consoleblank=0\0" \
+		"root=${mmcroot} ${pridis} ${secdis} consoleblank=0\0" \
 	"loadbootscript=" \
 		"fatload mmc ${mmcdev}:${mmcpart} ${loadaddr} ${script};\0" \
 	"bootscript=echo Running bootscript from mmc ...; " \
