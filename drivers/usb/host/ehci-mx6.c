@@ -285,7 +285,7 @@ int ehci_hcd_stop(int index)
 	val &= ~(USBPHY_CTRL_CLKGATE | USBPHY_CTRL_SFTRST);
 	__raw_writel(val, phy_ctrl);
 	udelay(10);
-
+	board_ehci_power(index, 0);
 
 
 	return 0;

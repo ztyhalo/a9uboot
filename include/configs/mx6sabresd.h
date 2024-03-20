@@ -20,6 +20,9 @@
 #include "mx6sabre_common.h"
 #define CONFIG_FAT_WRITE
 /* USB Configs */
+#define CONFIG_EFI_PARTITION
+#define CONFIG_EFI_PARTITION_ENTRIES_NUMBERS
+#define CONFIG_EFI_PARTITION_ENTRIES_OFF
 #define CONFIG_CMD_USB
 #define CONFIG_USB_EHCI
 #define CONFIG_USB_EHCI_MX6

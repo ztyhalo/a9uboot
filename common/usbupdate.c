@@ -397,7 +397,7 @@ static int load_rescue_image(ulong addr)
 
 //	printf(LOG_PREFIX "Checking for firmware image directory  on USB"
 //		" storage...\n");
-	//usb_stop();
+	usb_stop();
 	if (usb_init() != 0)
 		return 1;
 

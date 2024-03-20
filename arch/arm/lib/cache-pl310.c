@@ -13,10 +13,13 @@
 #include <common.h>
 
 struct pl310_regs *const pl310 = (struct pl310_regs *)CONFIG_SYS_PL310_BASE;
-
+#define cpu_relax()		barrier()
 static void pl310_cache_sync(void)
 {
 	writel(0, &pl310->pl310_cache_sync);
+	while (readl(&pl310->pl310_cache_sync) & L2X0_CTRL_EN)
+			cpu_relax();
+
 }
 
 static void pl310_background_op_all_ways(u32 *op_reg)
@@ -61,9 +64,16 @@ void v7_outer_cache_flush_range(u32 start, u32 stop)
 	 */
 	start &= ~(line_size - 1);
 
-	for (pa = start; pa < stop; pa = pa + line_size)
+	//for (pa = start; pa < stop; pa = pa + line_size)
+	//	writel(pa, &pl310->pl310_clean_inv_line_pa);
+	for (pa = start; pa < stop; pa = pa + line_size){
+		while (readl(&pl310->pl310_clean_inv_line_pa) & L2X0_CTRL_EN)
+			cpu_relax();
 		writel(pa, &pl310->pl310_clean_inv_line_pa);
+	}
 
+	while (readl(&pl310->pl310_clean_inv_line_pa) & L2X0_CTRL_EN)
+		cpu_relax();
 	pl310_cache_sync();
 }
 
@@ -95,8 +105,13 @@ void v7_outer_cache_inval_range(u32 start, u32 stop)
 		stop &= ~(line_size - 1);
 	}
 
-	for (pa = start; pa < stop; pa = pa + line_size)
+	for (pa = start; pa < stop; pa = pa + line_size){
+		while (readl(&pl310->pl310_clean_line_pa) & L2X0_CTRL_EN)
+			cpu_relax();
 		writel(pa, &pl310->pl310_inv_line_pa);
+	}
 
+	while (readl(&pl310->pl310_clean_line_pa) & L2X0_CTRL_EN)
+			cpu_relax();
 	pl310_cache_sync();
 }

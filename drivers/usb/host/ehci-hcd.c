@@ -291,6 +291,7 @@ ehci_submit_async(struct usb_device *dev, unsigned long pipe, void *buffer,
 	int ret = 0;
 	struct ehci_ctrl *ctrl = dev->controller;
 
+	debug("wwwwwwwwww ehci_submit_async wwwwwwwwwwww\n");
 	debug("dev=%p, pipe=%lx, buffer=%p, length=%d, req=%p\n", dev, pipe,
 	      buffer, length, req);
 	if (req != NULL)
@@ -663,7 +664,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 	struct ehci_ctrl *ctrl = dev->controller;
 
 	srclen = 0;
-
+	debug("wwwwwwwwww ehci_submit_root wwwwwwwwwwww\n");
 	debug("req=%u (%#x), type=%u (%#x), value=%u, index=%u\n",
 	      req->request, req->request,
 	      req->requesttype, req->requesttype,
@@ -684,7 +685,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		status_reg = NULL;
 		break;
 	}
-
+	//printf("wwwwwwww ehci_submit_root status_reg=%x typeReq=%x\n",status_reg,typeReq);
 	switch (typeReq) {
 	case DeviceRequest | USB_REQ_GET_DESCRIPTOR:
 		
@@ -804,6 +805,7 @@ ehci_submit_root(struct usb_device *dev, unsigned long pipe, void *buffer,
 		break;
 	case USB_REQ_SET_FEATURE | ((USB_DIR_OUT | USB_RT_PORT) << 8):
 		reg = ehci_readl(status_reg);
+		//printf("wwwwwwww 1111 xxxxxxxx status_reg=%x reg=%x\n",status_reg,reg);
 		reg &= ~EHCI_PS_CLEAR;
 		switch (le16_to_cpu(req->value)) {
 		case USB_PORT_FEAT_ENABLE:
