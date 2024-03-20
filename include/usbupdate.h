@@ -40,7 +40,14 @@
 #define MD5_MMC_DEV       	2
 #define MD5_MMC_DEV_PART       2
 
-
+#define LINELEN 	80
+#define MAXSCANLINE 	10
+#define USB_DEVICE		1
+#define MMC_EXT4_DEVICE		2
+#define MMC_FAT_DEVICE		3
+#define UBOOT_LOAD_ADDR_CHAR    "0x12000000"
+#define UBOOT_LOAD_ADDR         0x12000000
+#define UBOOT_PATH		"/hndzz/file/u-boot-M6708U-1GLI.imx"
 
 
 #define UPDATE_KERNEL   UPDATE_ROOT_DIR"zImage"

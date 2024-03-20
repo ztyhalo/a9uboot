@@ -36,6 +36,9 @@
 #define CONFIG_INITRD_TAG
 #define CONFIG_REVISION_TAG
 
+#define CONFIG_CMD_MD5SUM
+#define CONFIG_CMD_MEMORY
+#define CONFIG_MD5
 /* Size of malloc() pool */
 #define CONFIG_SYS_MALLOC_LEN		(10 * SZ_1M)
 

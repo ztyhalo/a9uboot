@@ -39,3 +39,4 @@ else
 
 fi
 
+scp u-boot-M6708U-1GLI.imx root@169.254.1.218:/home/root
