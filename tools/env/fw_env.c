@@ -1298,6 +1298,17 @@ static int get_config (char *fname)
 	int rc;
 	char dump[128];
 
+	char *devname="/dev/mmcblk3";
+
+	memcpy(DEVNAME(0),devname,strlen(devname));
+	DEVOFFSET (0)=0x80000;
+	ENVSIZE (0)=0x2000;
+	DEVESIZE (0)=0x2000;
+	ENVSECTORS (0)=1;
+	HaveRedundEnv = 0;
+//	printf ("devname=%s ,DEVOFFSET (%d)=%lx,ENVSIZE (%d)=%lx,DEVESIZE (%d)=%lx,ENVSECTORS (%d)=%lx\n",
+//							devname,i,DEVOFFSET(i),i,ENVSIZE(i),i,DEVESIZE(i),i,ENVSECTORS(i));
+	return 0;
 	fp = fopen (fname, "r");
 	if (fp == NULL)
 		return -1;

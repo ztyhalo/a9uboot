@@ -9,7 +9,7 @@
 # built with cross tools. Although it may look weird, we only replace "HOSTCC"
 # with "CC" here for the maximum code reuse of scripts/Makefile.host.
 HOSTCC = $(CC)
-
+HOSTCC +="-mfloat-abi=hard"
 # Compile for a hosted environment on the target
 HOST_EXTRACFLAGS  = $(patsubst -I%,-idirafter%, $(UBOOTINCLUDE)) \
 		-idirafter $(srctree)/tools/env \

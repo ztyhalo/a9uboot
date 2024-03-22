@@ -74,7 +74,8 @@ int main(int argc, char *argv[])
 	char *cmdname = *argv;
 	char *script_file = NULL;
 	int c;
-	const char *lockname = "/var/lock/" CMD_PRINTENV ".lock";
+	//const char *lockname = "/var/lock/" CMD_PRINTENV ".lock";
+	const char *lockname = "/home/" CMD_PRINTENV ".lock";
 	int lockfd = -1;
 	int retval = EXIT_SUCCESS;
 

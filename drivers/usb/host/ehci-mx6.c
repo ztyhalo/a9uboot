@@ -208,7 +208,8 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 {
 	struct usb_ehci *ehci = (struct usb_ehci *)(USB_BASE_ADDR +
 		(0x200 * index));
-
+	int i;
+	char *usbenv=NULL;
 	if (index > 3)
 		return -EINVAL;
 	enable_usboh3_clk(1);
@@ -236,6 +237,23 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	__raw_writel(CONFIG_MXC_USB_PORTSC, &ehci->portsc);
 	setbits_le32(&ehci->portsc, USB_EN);
 
+	usbenv = getenv("usbwait");
+	printf("wwwwww usb wait=%s\n", usbenv);
+	if (memcmp(usbenv,"yes",strlen(usbenv))==0)
+	{
+		setenv("usbwait", "no");
+		saveenv();
+		for ( i = 0; i < 20; i++)
+		{
+			if (((ehci->portsc)&0x800)!=0)
+			{
+				break;
+			}
+			mdelay(100);
+			printf("wwwwwwww  usb register i=%d!\n", i);
+		}
+	}
+	
 	mdelay(10);
 
 	return 0;

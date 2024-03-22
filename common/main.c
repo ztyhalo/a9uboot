@@ -500,7 +500,7 @@ void main_loop(void)
 //	if (strcmp(getenv("initboard"),"init"))
 //	{
 //		run_command("setenv initboard init", 0);
-//		run_command("saveenv", 0);
+	run_command("saveenv", 0);
 //		writeConfigFile(getenv("hndzboard"), strlen(getenv("hndzboard")));
 //		//printf("wwwww initboard initboard ok\n");
 //	}

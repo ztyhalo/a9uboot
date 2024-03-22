@@ -7,6 +7,8 @@ build_uboot(){
     rm $OBJ -f
     make $CONFIG
     make -j8 && cp u-boot.imx $OBJ
+    make env
+    echo $CC
     cp $OBJ .. -f
 }
 
