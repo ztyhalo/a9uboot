@@ -234,6 +234,18 @@ static int bcm5482_startup(struct phy_device *phydev)
 	return 0;
 }
 
+static int bcm89881_config(struct phy_device *phydev)
+{
+	printf("wwwwwww bcm89881_config\n");
+	return 0;
+}
+
+static int bcm89881_startup(struct phy_device *phydev)
+{
+	printf("wwwwwww bcm89881_startup\n");
+	return 0;
+}
+
 static struct phy_driver BCM5461S_driver = {
 	.name = "Broadcom BCM5461S",
 	.uid = 0x2060c0,
@@ -264,11 +276,21 @@ static struct phy_driver BCM5482S_driver = {
 	.shutdown = &genphy_shutdown,
 };
 
+static struct phy_driver BCM89881_driver = {
+	.name = "Broadcom BCM89881",
+	.uid = 0xae025032,
+	.mask = 0xffffffff,
+	.features = PHY_GBIT_FEATURES,
+	.config = &bcm89881_config,
+	.startup = &bcm89881_startup,
+	.shutdown = &genphy_shutdown,
+};
+
 int phy_broadcom_init(void)
 {
 	phy_register(&BCM5482S_driver);
 	phy_register(&BCM5464S_driver);
 	phy_register(&BCM5461S_driver);
-
+	phy_register(&BCM89881_driver);
 	return 0;
 }

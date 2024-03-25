@@ -72,17 +72,24 @@
 #define CONFIG_CMD_PING
 #define CONFIG_CMD_DHCP
 #define CONFIG_CMD_MII
-//#define CONFIG_CMD_NET
-//#define CONFIG_FEC_MXC
-//#define CONFIG_MII
-//#define IMX_FEC_BASE			ENET_BASE_ADDR
-//#define CONFIG_FEC_XCV_TYPE		RGMII
-//#define CONFIG_ETHPRIME			"FEC"
-//#define CONFIG_FEC_MXC_PHYADDR		3
+#define CONFIG_CMD_NET
+#define CONFIG_FEC_MXC
+#define CONFIG_MII
+#define IMX_FEC_BASE			ENET_BASE_ADDR
+#define CONFIG_FEC_XCV_TYPE		RGMII
+#define CONFIG_ETHPRIME			"FEC"
+#define CONFIG_FEC_MXC_PHYADDR		0
 
-//#define CONFIG_PHYLIB
-//#define CONFIG_PHY_ATHEROS
-//#define CONFIG_PHY_MICREL
+#define CONFIG_PHYLIB
+#define CONFIG_PHY_ATHEROS
+#define CONFIG_PHY_REALTEK
+#define CONFIG_PHY_BROADCOM
+#define CONFIG_PHY_MICREL
+#define CONFIG_PHY_GIGE	1	/* Include GbE speed/duplex detection */
+#define CONFIG_PHYLIB_10G		/*以下四个宏，为RTL8211相关的宏*/
+#define CONFIG_PHY_VITESSE
+
+#define CONFIG_PHY_TERANETICS
 
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
@@ -107,9 +114,11 @@
 #define CONFIG_LOADADDR                        0x12000000
 #define CONFIG_SYS_TEXT_BASE           0x17800000
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
-#define CONFIG_IPADDR 					192.168.1.141
-#define CONFIG_SERVERIP                 192.168.1.168
+#define CONFIG_GATEWAYIP				192.168.168.1
+#define CONFIG_IPADDR 					192.168.168.200
+#define CONFIG_SERVERIP                 192.168.168.100
 #define CONFIG_NETMASK                  255.255.255.0
+#define CONFIG_ETHADDR 		AA:22:33:44:55:66
 
 #ifdef CONFIG_SYS_BOOT_NAND
 #define CONFIG_MFG_NAND_PARTITION "mtdparts=gpmi-nand:64m(boot),16m(kernel),16m(dtb),-(rootfs) "

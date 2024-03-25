@@ -44,6 +44,19 @@ DECLARE_GLOBAL_DATA_PTR;
 #define CONFIG_FEC_MXC_SWAP_PACKET
 #endif
 
+//add c45
+#define MII_ADDR_C45 (1<<30)
+#define FEC_MMFR_ST_C45  (0)
+#define MII_DEVADDR_C45_SHIFT   16
+#define MII_REGADDR_C45_MASK    GENMASK(15, 0)
+
+#define FEC_MMFR_OP_READ_C45 (3 << 28)
+#define FEC_MMFR_OP_ADDR_WRITE (0)
+#define FEC_MMFR_PA(v)		((v & 0x1f) << 23)
+#define FEC_MMFR_RA(v)		((v & 0x1f) << 18)
+#define FEC_MMFR_TA		(2 << 16)
+#define FEC_MMFR_DATA(v)	(v & 0xffff)
+
 #define RXDESC_PER_CACHELINE (ARCH_DMA_MINALIGN/sizeof(struct fec_bd))
 
 /* Check various alignment issues at compile time */
@@ -79,22 +92,51 @@ static void swap_packet(uint32_t *packet, int length)
  * MII-interface related functions
  */
 static int fec_mdio_read(struct ethernet_regs *eth, uint8_t phyAddr,
-		uint8_t regAddr)
+		uint32_t regAddr)
 {
 	uint32_t reg;		/* convenient holder for the PHY register */
 	uint32_t phy;		/* convenient holder for the PHY */
 	uint32_t start;
 	int val;
+	int frame_start, frame_addr,frame_op;
+	bool is_c45 = 1;//!!(regAddr & MII_ADDR_C45);
+
+	if(is_c45){
+		regAddr=MII_ADDR_C45 | 1 << MII_DEVADDR_C45_SHIFT | regAddr;
+		frame_start = FEC_MMFR_ST_C45;
+
+		frame_addr = (regAddr >> 16);
+		writel(frame_start | FEC_MMFR_OP_ADDR_WRITE |
+				FEC_MMFR_PA(phyAddr) | FEC_MMFR_RA(frame_addr)|
+				FEC_MMFR_TA | (regAddr & 0xFFFF),&eth->mii_data);
+		
+		start = get_timer(0);
+		while (!(readl(&eth->ievent) & FEC_IEVENT_MII)) {
+			if (get_timer(start) > (CONFIG_SYS_HZ / 1000)) {
+				printf("Read MDIO failed...\n");
+				return -1;
+			}
+		}
+		frame_op = FEC_MMFR_OP_READ_C45;
+	}
+	else
+	{/* C22 read*/
+		frame_op = FEC_MII_DATA_OP_RD;
+		frame_start = FEC_MII_DATA_ST;
+		frame_addr = regAddr;
+	}
 
 	/*
 	 * reading from any PHY's register is done by properly
 	 * programming the FEC's MII data register.
 	 */
 	writel(FEC_IEVENT_MII, &eth->ievent);
-	reg = regAddr << FEC_MII_DATA_RA_SHIFT;
+	reg = frame_addr << FEC_MII_DATA_RA_SHIFT;
 	phy = phyAddr << FEC_MII_DATA_PA_SHIFT;
 
-	writel(FEC_MII_DATA_ST | FEC_MII_DATA_OP_RD | FEC_MII_DATA_TA |
+	//writel(FEC_MII_DATA_ST | FEC_MII_DATA_OP_RD | FEC_MII_DATA_TA |
+	//		phy | reg, &eth->mii_data);
+	writel(frame_start | frame_op | FEC_MII_DATA_TA |
 			phy | reg, &eth->mii_data);
 
 	/*
@@ -138,18 +180,48 @@ static void fec_mii_setspeed(struct ethernet_regs *eth)
 }
 
 static int fec_mdio_write(struct ethernet_regs *eth, uint8_t phyAddr,
-		uint8_t regAddr, uint16_t data)
+		uint32_t regAddr, uint16_t data)
 {
 	uint32_t reg;		/* convenient holder for the PHY register */
 	uint32_t phy;		/* convenient holder for the PHY */
 	uint32_t start;
 
-	reg = regAddr << FEC_MII_DATA_RA_SHIFT;
+	int frame_start, frame_addr,frame_op;
+	bool is_c45 = 1;//!!(regAddr & MII_ADDR_C45);
+
+	if(is_c45)
+	{
+		regAddr=MII_ADDR_C45 | 1 << MII_DEVADDR_C45_SHIFT | regAddr;
+		frame_start = FEC_MMFR_ST_C45;
+		frame_addr = (regAddr >> 16);
+		writel(frame_start | FEC_MMFR_OP_ADDR_WRITE |
+				FEC_MMFR_PA(phyAddr) | FEC_MMFR_RA(frame_addr)|
+				FEC_MMFR_TA | (regAddr & 0xFFFF),
+				&eth->mii_data);
+
+		start = get_timer(0);
+		while (!(readl(&eth->ievent) & FEC_IEVENT_MII)) {
+			if (get_timer(start) > (CONFIG_SYS_HZ / 1000)) {
+				printf("Write MDIO failed...\n");
+				return -1;
+			}
+		}
+	}
+	else
+	{
+		frame_start = FEC_MII_DATA_ST;
+		frame_addr = regAddr;
+	}
+
+	reg = frame_addr << FEC_MII_DATA_RA_SHIFT;
 	phy = phyAddr << FEC_MII_DATA_PA_SHIFT;
 
-	writel(FEC_MII_DATA_ST | FEC_MII_DATA_OP_WR |
-		FEC_MII_DATA_TA | phy | reg | data, &eth->mii_data);
+	//writel(FEC_MII_DATA_ST | FEC_MII_DATA_OP_WR |
+	//	FEC_MII_DATA_TA | phy | reg | data, &eth->mii_data);
 
+	writel(frame_start | FEC_MII_DATA_OP_WR |
+			phy | reg| FEC_MMFR_TA | FEC_MMFR_DATA(data),
+			&eth->mii_data);
 	/*
 	 * wait for the MII interrupt
 	 */
