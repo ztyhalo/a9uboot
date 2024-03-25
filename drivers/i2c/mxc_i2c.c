@@ -112,6 +112,9 @@ static u16 i2c_clk_div[50][2] = {
 #ifndef CONFIG_SYS_MXC_I2C3_SPEED
 #define CONFIG_SYS_MXC_I2C3_SPEED 100000
 #endif
+#ifndef CONFIG_SYS_MXC_I2C4_SPEED
+#define CONFIG_SYS_MXC_I2C4_SPEED 100000
+#endif
 
 #ifndef CONFIG_SYS_MXC_I2C1_SLAVE
 #define CONFIG_SYS_MXC_I2C1_SLAVE 0
@@ -122,7 +125,9 @@ static u16 i2c_clk_div[50][2] = {
 #ifndef CONFIG_SYS_MXC_I2C3_SLAVE
 #define CONFIG_SYS_MXC_I2C3_SLAVE 0
 #endif
-
+#ifndef CONFIG_SYS_MXC_I2C4_SLAVE
+#define CONFIG_SYS_MXC_I2C4_SLAVE 0
+#endif
 
 /*
  * Calculate and set proper clock divider
@@ -310,7 +315,7 @@ static int i2c_init_transfer(struct mxc_i2c_regs *i2c_regs,
 {
 	int retry;
 	int ret;
-	for (retry = 0; retry < 3; retry++) {
+	for (retry = 0; retry < 4; retry++) {
 		ret = i2c_init_transfer_(i2c_regs, chip, addr, alen);
 		if (ret >= 0)
 			return 0;
@@ -422,7 +427,7 @@ struct i2c_parms {
 
 struct sram_data {
 	unsigned curr_i2c_bus;
-	struct i2c_parms i2c_data[3];
+	struct i2c_parms i2c_data[4];
 };
 
 /*
@@ -444,7 +449,8 @@ static void * const i2c_bases[] = {
 	defined(CONFIG_MX6)
 	(void *)I2C1_BASE_ADDR,
 	(void *)I2C2_BASE_ADDR,
-	(void *)I2C3_BASE_ADDR
+	(void *)I2C3_BASE_ADDR,
+	(void *)I2C4_BASE_ADDR
 #elif defined(CONFIG_VF610)
 	(void *)I2C0_BASE_ADDR
 #else
@@ -562,4 +568,9 @@ U_BOOT_I2C_ADAP_COMPLETE(mxc2, mxc_i2c_init, mxc_i2c_probe,
 			 mxc_i2c_set_bus_speed,
 			 CONFIG_SYS_MXC_I2C3_SPEED,
 			 CONFIG_SYS_MXC_I2C3_SLAVE, 2)
+U_BOOT_I2C_ADAP_COMPLETE(mxc3, mxc_i2c_init, mxc_i2c_probe,
+			 mxc_i2c_read, mxc_i2c_write,
+			 mxc_i2c_set_bus_speed,
+			 CONFIG_SYS_MXC_I2C4_SPEED,
+			 CONFIG_SYS_MXC_I2C4_SLAVE, 3)
 #endif

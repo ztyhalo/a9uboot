@@ -101,6 +101,32 @@ struct i2c_pads_info i2c_pad_info1 = {
 		.gp = IMX_GPIO_NR(4, 13)
 	}
 };
+
+struct i2c_pads_info i2c_pad_info2 = {
+	.scl = {
+		.i2c_mode = MX6_PAD_GPIO_3__I2C3_SCL | PC,
+		.gpio_mode = MX6_PAD_GPIO_3__GPIO1_IO03 | PC,
+		.gp = IMX_GPIO_NR(1, 3)
+	},
+	.sda = {
+		.i2c_mode = MX6_PAD_GPIO_6__I2C3_SDA | PC,
+		.gpio_mode = MX6_PAD_GPIO_6__GPIO1_IO06 | PC,
+		.gp = IMX_GPIO_NR(1, 6)
+	}
+};
+
+struct i2c_pads_info i2c_pad_info3 = {
+	.scl = {
+		.i2c_mode = MX6_PAD_GPIO_7__I2C4_SCL | PC,
+		.gpio_mode = MX6_PAD_GPIO_7__GPIO1_IO07 | PC,
+		.gp = IMX_GPIO_NR(1, 7)
+	},
+	.sda = {
+		.i2c_mode = MX6_PAD_GPIO_8__I2C4_SDA | PC,
+		.gpio_mode = MX6_PAD_GPIO_8__GPIO1_IO08 | PC,
+		.gp = IMX_GPIO_NR(1, 8)
+	}
+};
 #endif
 
 /* MAIN BOARD power management */
@@ -387,6 +413,22 @@ static int setup_pmic_mode(int chip)
 	return 0;
 }
 
+#define TLV320AIC3X_ID 	0x18
+#define TCA9535_ID 		0x24
+
+static void scan_i2c_device(void)
+{
+	i2c_set_bus_num(2);
+	if (!i2c_probe(TLV320AIC3X_ID)) {
+		printf("scan_i2c_device TLV320AIC3X\n");
+	}
+
+	i2c_set_bus_num(3);
+	if (!i2c_probe(TCA9535_ID)) {
+		printf("scan_i2c_device TCA9535\n");
+	}
+
+}
 static int setup_pmic_voltages(void)
 {
 	unsigned char value, rev_id = 0 ;
@@ -1367,11 +1409,20 @@ int board_late_init(void)
 #endif
 
 #ifdef CONFIG_SYS_I2C_MXC
+	setup_i2c(0, CONFIG_SYS_I2C_SPEED,
+			0x7f, &i2c_pad_info0);
+
 	setup_i2c(1, CONFIG_SYS_I2C_SPEED,
 			0x7f, &i2c_pad_info1);
 
-	setup_i2c(0, CONFIG_SYS_I2C_SPEED,
-			0x7f, &i2c_pad_info0);
+	setup_i2c(2, CONFIG_SYS_I2C_SPEED,
+			0x7f, &i2c_pad_info2);
+
+	setup_i2c(3, CONFIG_SYS_I2C_SPEED,
+			0x7f, &i2c_pad_info3);
+	
+	scan_i2c_device();
+
 	ret = setup_pmic_voltages();
 	if (ret)
 		return -1;

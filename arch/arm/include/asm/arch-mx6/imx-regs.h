@@ -281,6 +281,7 @@
 #define UART3_BASE                  (AIPS2_OFF_BASE_ADDR + 0x6C000)
 #define UART4_BASE                  (AIPS2_OFF_BASE_ADDR + 0x70000)
 #define UART5_BASE                  (AIPS2_OFF_BASE_ADDR + 0x74000)
+#define I2C4_BASE_ADDR              (AIPS2_OFF_BASE_ADDR + 0x78000)
 #ifdef CONFIG_MX6SX
 #define I2C4_BASE_ADDR              (AIPS2_OFF_BASE_ADDR + 0x78000)
 #define QOSC_BASE_ADDR              (AIPS2_OFF_BASE_ADDR + 0x7C000)
