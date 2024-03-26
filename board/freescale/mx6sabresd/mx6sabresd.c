@@ -19,7 +19,7 @@
 #include <fsl_esdhc.h>
 #include <miiphy.h>
 #include <netdev.h>
-
+#include <spi.h>
 #if defined(CONFIG_MX6DL) && defined(CONFIG_MXC_EPDC)
 #include <lcd.h>
 #include <mxc_epdc_fb.h>
@@ -295,24 +295,28 @@ iomux_v3_cfg_t const usdhc4_pads[] = {
 	MX6_PAD_SD4_DAT7__SD4_DATA7 | MUX_PAD_CTRL(USDHC_PAD_CTRL),
 };
 
-#ifdef CONFIG_SYS_USE_SPINOR
-iomux_v3_cfg_t const ecspi1_pads[] = {
-	MX6_PAD_KEY_COL0__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
-	MX6_PAD_KEY_COL1__ECSPI1_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),
-	MX6_PAD_KEY_ROW0__ECSPI1_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
-	MX6_PAD_KEY_ROW1__GPIO4_IO09 | MUX_PAD_CTRL(NO_PAD_CTRL),
+//#ifdef CONFIG_SYS_USE_SPINOR
+static iomux_v3_cfg_t const ecspi1_pads[] = {
+	MX6_PAD_DISP0_DAT20__ECSPI1_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6_PAD_DISP0_DAT21__ECSPI1_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6_PAD_DISP0_DAT22__ECSPI1_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6_PAD_DISP0_DAT23__GPIO5_IO17 | MUX_PAD_CTRL(NO_PAD_CTRL),	//cs
+	MX6_PAD_DISP0_DAT19__GPIO5_IO13 | MUX_PAD_CTRL(NO_PAD_CTRL),	//reset
 };
 
-static void setup_spinor(void)
-{
-	imx_iomux_v3_setup_multiple_pads(ecspi1_pads, ARRAY_SIZE(ecspi1_pads));
-	gpio_direction_output(IMX_GPIO_NR(4, 9), 0);
-}
-#endif
+static iomux_v3_cfg_t const ecspi2_pads[] = {
+	MX6_PAD_CSI0_DAT10__ECSPI2_MISO | MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6_PAD_CSI0_DAT9__ECSPI2_MOSI | MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6_PAD_CSI0_DAT8__ECSPI2_SCLK | MUX_PAD_CTRL(SPI_PAD_CTRL),
+	MX6_PAD_CSI0_DAT11__GPIO5_IO29 | MUX_PAD_CTRL(NO_PAD_CTRL),	//cs
+	MX6_PAD_GPIO_17__GPIO7_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL),	//reset
+};
+
+//#endif
 
 iomux_v3_cfg_t const pcie_pads[] = {
 	MX6_PAD_EIM_D19__GPIO3_IO19 | MUX_PAD_CTRL(NO_PAD_CTRL),	/* POWER */
-	MX6_PAD_GPIO_17__GPIO7_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL),	/* RESET */
+	//MX6_PAD_GPIO_17__GPIO7_IO12 | MUX_PAD_CTRL(NO_PAD_CTRL),	/* RESET */
 };
 
 static void setup_pcie(void)
@@ -412,6 +416,128 @@ static int setup_pmic_mode(int chip)
 
 	return 0;
 }
+
+#define IOX_SPI1_RST       IMX_GPIO_NR(5, 13)
+#define IOX_SPI1_CS        IMX_GPIO_NR(5, 17)
+#define IOX_SPI2_RST       IMX_GPIO_NR(7, 12)
+#define IOX_SPI2_CS        IMX_GPIO_NR(5, 29)
+#define SPI_CS(x)			(x<<8)
+#define SPI_DATA_LEN(x)		(x*8)
+
+#define INSTRUCTION_RESET		0xC0
+#define INSTRUCTION_WRITE		0x02
+#define INSTRUCTION_READ		0x03
+#define CANSTAT	      			0x0e
+#define CANCTRL	      			0x0f
+#define CANCTRL_REQOP_MASK	    0xe0
+#define CANCTRL_REQOP_CONF	    0x80
+#define MCP251X_OST_DELAY_MS	(50)
+
+static void setup_spinor(void)
+{
+	imx_iomux_v3_setup_multiple_pads(ecspi1_pads, ARRAY_SIZE(ecspi1_pads));
+	gpio_direction_output(IMX_GPIO_NR(5, 17), 0);
+	gpio_direction_output(IMX_GPIO_NR(5, 13), 0);
+
+	imx_iomux_v3_setup_multiple_pads(ecspi2_pads, ARRAY_SIZE(ecspi2_pads));
+	gpio_direction_output(IMX_GPIO_NR(5, 29), 0);
+	gpio_direction_output(IMX_GPIO_NR(7, 12), 0);
+
+	enable_spi_clk(1,0);
+	enable_spi_clk(1,1);
+}
+
+void scan_spi_mcp2515(int bus)
+{
+	struct spi_slave *slave = NULL;
+	uint8_t buf[8];
+    int ret = 0;
+	int cs = 0;
+	if (bus==0)
+	{
+		gpio_set_value(IOX_SPI1_CS, 1);
+		gpio_set_value(IOX_SPI1_RST, 0);
+		mdelay(100);
+		gpio_set_value(IOX_SPI1_RST, 1);
+		mdelay(200);
+		cs=SPI_CS(IOX_SPI1_CS);
+	}
+	else if (bus==1)
+	{
+		gpio_set_value(IOX_SPI2_CS, 1);
+		gpio_set_value(IOX_SPI2_RST, 0);
+		mdelay(100);
+		gpio_set_value(IOX_SPI2_RST, 1);
+		mdelay(200);
+		cs=SPI_CS(IOX_SPI2_CS);
+	}
+
+	slave = spi_setup_slave(bus, cs, 2000000, SPI_MODE_0);
+	if (slave) {
+		if (spi_claim_bus(slave)) {
+			printf("wwwwww spi_claim_bus failed\n");
+			spi_release_bus(slave);
+			return;
+		}
+		//spi_free_slave(slave);
+	}
+	else
+	{
+		printf("wwwwww spi_setup_slave faile\n");
+		return;
+	}
+	mdelay(MCP251X_OST_DELAY_MS);
+	buf[0] =INSTRUCTION_RESET;
+	ret=spi_xfer(slave, SPI_DATA_LEN(1), buf, buf, SPI_XFER_BEGIN | SPI_XFER_END );
+	if (ret)
+	{
+		spi_release_bus(slave);
+		spi_free_slave(slave);
+		printf("wwwwww spi_xfer ret=%d\n", ret);
+		return;
+	}
+	mdelay(MCP251X_OST_DELAY_MS+100);
+
+	buf[0] =INSTRUCTION_READ;
+	buf[1] =CANSTAT;
+	buf[2] =0xff;
+	ret=spi_xfer(slave, SPI_DATA_LEN(3), buf, buf, SPI_XFER_BEGIN | SPI_XFER_END );
+	if (ret)
+	{
+		spi_release_bus(slave);
+		spi_free_slave(slave);
+		printf("wwwwww spi_xfer ret=%d\n", ret);
+		return;
+	}
+	if ((buf[2] & CANCTRL_REQOP_MASK) != CANCTRL_REQOP_CONF)
+	{
+		printf("wwwwww read mcp251x CANSTAT failed buf[2]=%x\n",buf[2]);		
+		return;
+	}
+
+	buf[0] =INSTRUCTION_READ;
+	buf[1] =CANCTRL;
+	buf[2] =0xff;
+	ret=spi_xfer(slave, SPI_DATA_LEN(3), buf, buf, SPI_XFER_BEGIN | SPI_XFER_END );
+	if (ret)
+	{
+		spi_release_bus(slave);
+		spi_free_slave(slave);
+		printf("wwwwww spi_xfer ret=%d\n", ret);
+		return;
+	}
+	if ((buf[2] & 0x17) != 0x07)
+	{
+		printf("wwwwww Check for power up default value error buf[2]=%x\n",buf[2]);		
+		return;
+	}
+
+	spi_release_bus(slave);
+	spi_free_slave(slave);
+	printf("wwwwww spi %d ok\n",bus);
+}
+
+
 
 #define TLV320AIC3X_ID 	0x18
 #define TCA9535_ID 		0x24
@@ -694,7 +820,7 @@ int board_mmc_getcd(struct mmc *mmc)
 		ret = 1;
 		break;
 	case USDHC3_BASE_ADDR:
-		ret = !gpio_get_value(USDHC3_CD_GPIO);
+		ret = 1;//!gpio_get_value(USDHC3_CD_GPIO);
 		break;
 	case USDHC4_BASE_ADDR:
 		ret = 1; /* eMMC/uSDHC4 is always present */
@@ -731,7 +857,7 @@ int board_mmc_init(bd_t *bis)
 		case 1:
 			imx_iomux_v3_setup_multiple_pads(
 				usdhc3_pads, ARRAY_SIZE(usdhc3_pads));
-			gpio_direction_input(USDHC3_CD_GPIO);
+			//gpio_direction_input(USDHC3_CD_GPIO);
 			usdhc_cfg[1].sdhc_clk = mxc_get_clock(MXC_ESDHC3_CLK);
 			break;
 		case 2:
@@ -1307,7 +1433,7 @@ void read_mac_ds2460()
 int board_eth_init(bd_t *bis)
 {
 	setup_iomux_enet();
-	setup_pcie();
+	//setup_pcie();
 
 #ifdef DS2460_ENCRYPT
 	read_mac_ds2460();
@@ -1323,7 +1449,7 @@ int board_early_init_f(void)
 #endif
 
 #ifdef CONFIG_SYS_USE_SPINOR
-	setup_spinor();
+	//setup_spinor();
 #endif
 
 #ifdef CONFIG_CMD_SATA
@@ -1422,7 +1548,9 @@ int board_late_init(void)
 			0x7f, &i2c_pad_info3);
 	
 	scan_i2c_device();
-
+	setup_spinor();
+	scan_spi_mcp2515(0);
+	scan_spi_mcp2515(1);
 	ret = setup_pmic_voltages();
 	if (ret)
 		return -1;
