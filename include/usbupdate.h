@@ -32,16 +32,18 @@
 
 #define UPDATE_ROOT_DIR "/hndzz/"
 
-#define MD5_FILE_NAME   UPDATE_ROOT_DIR"file/md5"
-#define MD5_LOAD_ADDR    0x18000000
+#define HNDZZ_MD5_NAME   UPDATE_ROOT_DIR"file/md5"
+#define HNDZZ_MD5_LOAD_ADDR    0x18000000
 
-#define MD5_FILE_NAME1   "/opt/md5"
-#define MD5_LOAD_ADDR1    0x18000100
+#define OPT_MD5_NAME   "/opt/md5"
+#define OPT_MD5_LOAD_ADDR    0x18000100
 #define MD5_MMC_DEV       	2
 #define MD5_MMC_DEV_PART       2
 
 #define LINELEN 	80
 #define MAXSCANLINE 	10
+#define OPTMD5 	    1
+#define HNDZZMD5 	2
 #define USB_DEVICE		1
 #define MMC_EXT4_DEVICE		2
 #define MMC_FAT_DEVICE		3
@@ -57,6 +59,7 @@
 #define UPDATE_DTB      UPDATE_ROOT_DIR"imx6dl-sabresd.dtb"
 #define DTB_LOAD_ADDR    0x18000000
 
+#define PF_FILE_PATH        UPDATE_ROOT_DIR"platform"
 
 /* Main function for usbupdate */
 void imx6_usbupdate(void);

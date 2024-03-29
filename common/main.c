@@ -506,7 +506,7 @@ void main_loop(void)
 //	}
 //
 //	scanConfigFile();
-//	imx6_usbupdate();
+	imx6_usbupdate();
 
 #if defined(CONFIG_UPDATE_TFTP)
 	update_tftp(0UL);

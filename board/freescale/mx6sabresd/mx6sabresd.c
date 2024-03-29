@@ -447,7 +447,7 @@ static void setup_spinor(void)
 	enable_spi_clk(1,1);
 }
 
-void scan_spi_mcp2515(int bus)
+int scan_spi_mcp2515(int bus)
 {
 	struct spi_slave *slave = NULL;
 	uint8_t buf[8];
@@ -477,14 +477,14 @@ void scan_spi_mcp2515(int bus)
 		if (spi_claim_bus(slave)) {
 			printf("wwwwww spi_claim_bus failed\n");
 			spi_release_bus(slave);
-			return;
+			return 0;
 		}
 		//spi_free_slave(slave);
 	}
 	else
 	{
 		printf("wwwwww spi_setup_slave faile\n");
-		return;
+		return 0;
 	}
 	mdelay(MCP251X_OST_DELAY_MS);
 	buf[0] =INSTRUCTION_RESET;
@@ -494,7 +494,7 @@ void scan_spi_mcp2515(int bus)
 		spi_release_bus(slave);
 		spi_free_slave(slave);
 		printf("wwwwww spi_xfer ret=%d\n", ret);
-		return;
+		return 0;
 	}
 	mdelay(MCP251X_OST_DELAY_MS+100);
 
@@ -507,12 +507,12 @@ void scan_spi_mcp2515(int bus)
 		spi_release_bus(slave);
 		spi_free_slave(slave);
 		printf("wwwwww spi_xfer ret=%d\n", ret);
-		return;
+		return 0;
 	}
 	if ((buf[2] & CANCTRL_REQOP_MASK) != CANCTRL_REQOP_CONF)
 	{
 		printf("wwwwww read mcp251x CANSTAT failed buf[2]=%x\n",buf[2]);		
-		return;
+		return 0;
 	}
 
 	buf[0] =INSTRUCTION_READ;
@@ -524,33 +524,37 @@ void scan_spi_mcp2515(int bus)
 		spi_release_bus(slave);
 		spi_free_slave(slave);
 		printf("wwwwww spi_xfer ret=%d\n", ret);
-		return;
+		return 0;
 	}
 	if ((buf[2] & 0x17) != 0x07)
 	{
 		printf("wwwwww Check for power up default value error buf[2]=%x\n",buf[2]);		
-		return;
+		return 0;
 	}
 
 	spi_release_bus(slave);
 	spi_free_slave(slave);
-	printf("wwwwww spi %d ok\n",bus);
+	//printf("wwwwww spi %d ok\n",bus);
+	return 1;
 }
 
 
 
 #define TLV320AIC3X_ID 	0x18
 #define TCA9535_ID 		0x24
-
+extern u32 hndz_tlv320_state;
+extern u32 hndz_tca9535_start;
 static void scan_i2c_device(void)
 {
 	i2c_set_bus_num(2);
 	if (!i2c_probe(TLV320AIC3X_ID)) {
+		hndz_tlv320_state=1;
 		printf("scan_i2c_device TLV320AIC3X\n");
 	}
 
 	i2c_set_bus_num(3);
 	if (!i2c_probe(TCA9535_ID)) {
+		hndz_tca9535_start=1;
 		printf("scan_i2c_device TCA9535\n");
 	}
 
@@ -1549,8 +1553,8 @@ int board_late_init(void)
 	
 	scan_i2c_device();
 	setup_spinor();
-	scan_spi_mcp2515(0);
-	scan_spi_mcp2515(1);
+//	scan_spi_mcp2515(0);
+//	scan_spi_mcp2515(1);
 	ret = setup_pmic_voltages();
 	if (ret)
 		return -1;
