@@ -243,7 +243,7 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	{
 		setenv("usbwait", "no");
 		saveenv();
-		for ( i = 0; i < 20; i++)
+		for ( i = 0; i < 50; i++)
 		{
 			if (((ehci->portsc)&0x800)!=0)
 			{
