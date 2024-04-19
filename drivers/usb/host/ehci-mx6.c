@@ -241,9 +241,9 @@ int ehci_hcd_init(int index, enum usb_init_type init,
 	printf("wwwwww usb wait=%s\n", usbenv);
 	if (memcmp(usbenv,"yes",strlen(usbenv))==0)
 	{
-		setenv("usbwait", "no");
-		saveenv();
-		for ( i = 0; i < 50; i++)
+		//setenv("usbwait", "no");
+		//saveenv();
+		for ( i = 0; i < 40; i++)
 		{
 			if (((ehci->portsc)&0x800)!=0)
 			{

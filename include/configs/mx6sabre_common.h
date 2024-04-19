@@ -184,7 +184,7 @@
 	"fdt_addr=0x18000000\0" \
 	"boot_fdt=try\0" \
 	"ip_dyn=yes\0" \
-	"usbwait=no\0" \
+	"usbwait=yes\0" \
 	"console=" CONFIG_CONSOLE_DEV "\0" \
 	"fdt_high=0xffffffff\0"	  \
 	"initrd_high=0xffffffff\0" \
