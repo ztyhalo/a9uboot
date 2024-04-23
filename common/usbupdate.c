@@ -28,7 +28,8 @@ u32 hndz_tlv320_state=0;
 u32 hndz_tca9535_start=0;
 u32 hndz_mcp251x_state=0;
 u32 hndz_platform=0xffffffff;
-
+static int devno;
+static int partno;
 enum {
 	HNDZ_MX = 0,
 	HNDZ_KTC101,
@@ -109,6 +110,8 @@ static int scan_md5_platform(char * md5argv[],int flag,int type,int platform)
 	int offset = 0;
 	loff_t len_read;
 	char* path=NULL;
+	char usb_dev[7];
+
 	int (*read_file)(const char *, void *, int, int)=NULL;
 	if (flag==OPTMD5)
 	{
@@ -123,7 +126,8 @@ static int scan_md5_platform(char * md5argv[],int flag,int type,int platform)
 	{
 		if (type==USB_DEVICE)
 		{
-			if (fs_set_blk_dev("usb", "0:1", FS_TYPE_FAT)){
+			sprintf(usb_dev, "%d:%d", devno, partno);
+			if (fs_set_blk_dev("usb", usb_dev, FS_TYPE_FAT)){
 				printf("Identify partition errors!!!\n");
 				return 1;
 			}
@@ -229,7 +233,7 @@ static int uboot_md5_check(int device_types)
 	cmd_tbl_t *bcmd;
 	int ret,size,i,md5state;
 
-	char * const argv_usb_uboot[6] = { "fatload", "usb", "0:1", UBOOT_LOAD_ADDR_CHAR, UBOOT_PATH, NULL };
+	char * argv_usb_uboot[6] = { "fatload", "usb", "0:1", UBOOT_LOAD_ADDR_CHAR, UBOOT_PATH, NULL };
 	char * const argv_mmc_ext4_uboot[6] = { "ext4load", "mmc", "0:1", UBOOT_LOAD_ADDR_CHAR, UBOOT_PATH, NULL };
 	char * const argv_mmc_fat_uboot[6] = { "fatload", "mmc", "0:1", UBOOT_LOAD_ADDR_CHAR, UBOOT_PATH, NULL };
 
@@ -249,6 +253,7 @@ static int uboot_md5_check(int device_types)
 		}
 
 		memset(md5charbuf,0,LINELEN);
+		sprintf(argv_usb_uboot[2], "%d:%d", devno, partno);
 		ret=do_fat_fsload(bcmd, 0, 5, argv_usb_uboot);
 		if (ret != 0) {
 			printf("www fatload uboot Error\n");
@@ -341,10 +346,8 @@ static int load_rescue_image(ulong addr)
 	disk_partition_t info;
 	int size ;
 	int size1;
-	int devno;
-	int partno;
+
 	int i;
-	char fwdir[64];
 	char md5[64];
 	char nxri[128];
 //	char *tmp;
@@ -357,14 +360,6 @@ static int load_rescue_image(ulong addr)
 	cmd_tbl_t *bcmd;
 	int updatemark = 0;
 	
-	memset(fwdir, 0, sizeof(fwdir));
-	/* Get name of firmware directory */
-	//tmp = getenv("fw-dir");
-
-	/* Copy it into fwdir */
-	//strncpy(fwdir, tmp ? tmp : FW_DIR, sizeof(fwdir));
-	//fwdir[sizeof(fwdir) - 1] = 0; /* Terminate string */
-
 //	printf(LOG_PREFIX "Checking for firmware image directory  on USB"
 //		" storage...\n");
 	//usb_stop();
@@ -374,11 +369,6 @@ static int load_rescue_image(ulong addr)
 	/* Check for storage device */
 	if (usb_stor_scan(1) != 0) {
 		usb_stop();
-		return 1;
-	}
-	if (uboot_md5_check(USB_DEVICE))
-	{
-		printf("wwwww uboot_md5 check fail\n");
 		return 1;
 	}
 
@@ -400,22 +390,19 @@ static int load_rescue_image(ulong addr)
 		if (get_partition_info(stor_dev, i, &info) == 0) {
 			if (fat_register_device(stor_dev, i) == 0) {
 				// Check if rescue image is present 
-				USB_DEBUG("Looking for firmware directory '%s'"
-					" on partition %d\n", fwdir, i);
-				/*
-				if (do_fat_read(fwdir, NULL, 0, LS_NO) == -1) {
-					USB_DEBUG("No NX rescue image on "
+				printf("Looking for firmware directory '%s'"
+					" on partition %d\n", UPDATE_ROOT_DIR, i);
+				
+				if (do_fat_read(UPDATE_ROOT_DIR, NULL, 0, LS_NO) == -1) {
+					printf("No NX rescue image on "
 						"partition %d.\n", i);
 					partno = -2;
 				} else {
 					partno = i;
-					USB_DEBUG("Partition %d contains "
+					printf("Partition %d contains "
 						"firmware directory\n", partno);
 					break;
 				}
-				*/
-				partno = i;
-				break;
 			}
 		}
 	}
@@ -438,6 +425,11 @@ static int load_rescue_image(ulong addr)
 		return 1;
 	}
 
+	if (uboot_md5_check(USB_DEVICE))
+	{
+		printf("wwwww uboot_md5 check fail\n");
+		return 1;
+	}
 
 	/* Load the rescue image */
 	bcmd = find_cmd("fatload");
@@ -466,7 +458,7 @@ static int load_rescue_image(ulong addr)
 	{
 		size = getenv_hex("filesize", 0);
 		USB_DEBUG("usb read veriosn ok %d\n",size);
-		memcpy(fwdir, (void *)addr, size);
+		//memcpy(fwdir, (void *)addr, size);
 		/*
 		for(i= 0; i < size; i++)
 		{

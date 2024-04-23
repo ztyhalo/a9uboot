@@ -90,7 +90,8 @@ int test_part_dos (block_dev_desc_t *dev_desc)
 	if (dev_desc->block_read(dev_desc->dev, 0, 1, (ulong *) buffer) != 1)
 		return -1;
 
-	if (test_block_type(buffer) != DOS_MBR)
+	//if (test_block_type(buffer) != DOS_MBR)
+	if (test_block_type(buffer) < 0)
 		return -1;
 
 	return 0;
@@ -168,6 +169,7 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 	ALLOC_CACHE_ALIGN_BUFFER(unsigned char, buffer, dev_desc->blksz);
 	dos_partition_t *pt;
 	int i;
+	int dos_type;
 
 	if (dev_desc->block_read (dev_desc->dev, ext_part_sector, 1, (ulong *) buffer) != 1) {
 		printf ("** Can't read partition table on %d:%d **\n",
@@ -252,6 +254,22 @@ static int get_partition_info_extended (block_dev_desc_t *dev_desc, int ext_part
 				 part_num, which_part, info, disksig);
 		}
 	}
+
+	/* Check for DOS PBR if no partition is found */
+	dos_type = test_block_type(buffer);
+
+	if (dos_type == DOS_PBR) {
+		info->start = 0;
+		info->size = dev_desc->lba;
+		info->blksz = 512;
+		info->bootable = 0;
+		sprintf ((char *)info->type, "U-Boot");
+#ifdef CONFIG_PARTITION_UUIDS
+		info->uuid[0] = 0;
+#endif
+		return 0;
+	}
+
 	return -1;
 }
 
