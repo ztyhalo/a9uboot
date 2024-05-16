@@ -512,17 +512,17 @@ static int load_rescue_image(ulong addr)
 		//updatemark = 0;
 		if(updatemark == 1)  //更新
 		{
-			get_hndz_platfrom();
-			if (hndz_platform>HNDZ_NO_PF)
-			{
-				printf("wwwww hndzz board error\n");
-				return 1;
-			}
-			if (scan_md5_platform(NULL,HNDZZMD5,USB_DEVICE,1))
-			{
-				printf("wwwww hndzz platform error\n");
-				return 1;
-			}
+			//get_hndz_platfrom();
+			//if (hndz_platform>HNDZ_NO_PF)
+			//{
+			//	printf("wwwww hndzz board error\n");
+			//	return 1;
+			//}
+			//if (scan_md5_platform(NULL,HNDZZMD5,USB_DEVICE,1))
+			//{
+			//	printf("wwwww hndzz platform error\n");
+			//	return 1;
+			//}
 			USB_DEBUG("zty usb update!\n");
 			sprintf(nxri, "%s", UPDATE_KERNEL);
 			sprintf(addr_str, "%lx", (ulong)KERNEL_LOAD_ADDR);
@@ -659,17 +659,17 @@ static int mmc_load_rescue_image(ulong addr, int type)
 		//updatemark = 0;
 		if(updatemark == 1)  //更新
 		{
-			get_hndz_platfrom();
-			if (hndz_platform>HNDZ_NO_PF)
-			{
-				printf("wwwww hndzz board error\n");
-				return 1;
-			}
-			if (scan_md5_platform(NULL,HNDZZMD5,type,1))
-			{
-				printf("wwwww hndzz platform error\n");
-				return 1;
-			}
+			//get_hndz_platfrom();
+			//if (hndz_platform>HNDZ_NO_PF)
+			//{
+			//	printf("wwwww hndzz board error\n");
+			//	return 1;
+			//}
+			//if (scan_md5_platform(NULL,HNDZZMD5,type,1))
+			//{
+			//	printf("wwwww hndzz platform error\n");
+			//	return 1;
+			//}
 			USB_DEBUG("wwwwwwwwwwwwww mmc %s update!\n",readcmd);
 			sprintf(nxri, "%s", UPDATE_KERNEL);
 			sprintf(addr_str, "%lx", (ulong)KERNEL_LOAD_ADDR);

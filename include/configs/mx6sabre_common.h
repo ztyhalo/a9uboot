@@ -69,12 +69,12 @@
 #define CONFIG_SUPPORT_EMMC_BOOT /* eMMC specific */
 
 //#define CONFIG_CMD_TFTPPUT
-#define CONFIG_CMD_PING
-#define CONFIG_CMD_DHCP
-#define CONFIG_CMD_MII
-#define CONFIG_CMD_NET
-#define CONFIG_FEC_MXC
-#define CONFIG_MII
+//#define CONFIG_CMD_PING
+//#define CONFIG_CMD_DHCP
+//#define CONFIG_CMD_MII
+//#define CONFIG_CMD_NET
+//#define CONFIG_FEC_MXC
+//#define CONFIG_MII
 #define IMX_FEC_BASE			ENET_BASE_ADDR
 #define CONFIG_FEC_XCV_TYPE		RGMII
 #define CONFIG_ETHPRIME			"FEC"
