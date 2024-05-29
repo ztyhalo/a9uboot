@@ -112,7 +112,13 @@
 #define CONFIG_CMD_MENU
 
 #define CONFIG_LOADADDR                        0x12000000
-#define CONFIG_SYS_TEXT_BASE           0x17800000
+#ifdef _HNDZ_UPDATE_BOOT
+#ifndef CONFIG_SYS_TEXT_BASE
+ #define CONFIG_SYS_TEXT_BASE           0x17800000
+ #endif
+#else
+#define CONFIG_SYS_TEXT_BASE           0x17859000
+#endif
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 #define CONFIG_GATEWAYIP				192.168.168.1
 #define CONFIG_IPADDR 					192.168.168.200

@@ -92,6 +92,13 @@ IRQ_STACK_START_IN:
  */
 
 reset:
+#ifdef _HNDZ_UBOOT
+	ldr r4, =0x17858000
+	ldr r4, [r4]
+	ldr r3, =0x402000d1
+	subs	r3, r3, r4
+	beq 0x17859000
+#endif
 	bl	save_boot_params
 	/*
 	 * disable interrupts (FIQ and IRQ), also set the cpu to SVC32 mode,

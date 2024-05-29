@@ -753,6 +753,10 @@ static void imximage_set_header(void *ptr, struct stat *sbuf, int ifd,
 	 * The remaining fraction of a block bytes would not be loaded!
 	 */
 	*header_size_ptr = ROUND((sbuf->st_size + imximage_ivt_offset), 4096);
+#ifdef _HNDZ_UBOOT
+	  *header_size_ptr  = 983040;
+#endif
+
 
 	if (csf_ptr && imximage_csf_size) {
 		*csf_ptr = params->ep - imximage_init_loadsize +

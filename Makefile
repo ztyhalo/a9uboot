@@ -113,6 +113,11 @@ ifeq ("$(origin W)", "command line")
   export KBUILD_ENABLE_EXTRA_GCC_CHECKS := $(W)
 endif
 
+ifeq ("$(origin UPDATE)", "command line")
+  $(warning HNDZUPDATE $(UPDATE))
+  HNDZ_UPDATE = $(UPDATE)
+endif
+
 # That's our default target when none is given on the command line
 PHONY := _all
 _all:
@@ -204,7 +209,12 @@ CONFIG_SHELL := $(shell if [ -x "$$BASH" ]; then echo $$BASH; \
 	  else if [ -x /bin/bash ]; then echo /bin/bash; \
 	  else echo sh; fi ; fi)
 
-HOSTCC       = gcc
+
+ifndef HNDZ_UPDATE
+HOSTCC       = gcc 
+else
+HOSTCC       = gcc -D _HNDZ_UBOOT
+endif
 HOSTCFLAGS   = -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer
 
 ifeq ($(HOSTOS),cygwin)
@@ -324,7 +334,11 @@ LD		= $(CROSS_COMPILE)ld.bfd
 else
 LD		= $(CROSS_COMPILE)ld
 endif
+ifndef HNDZ_UPDATE
 CC		= $(CROSS_COMPILE)gcc
+else
+CC		= $(CROSS_COMPILE)gcc -D _HNDZ_UBOOT
+endif
 CPP		= $(CC) -E
 AR		= $(CROSS_COMPILE)ar
 NM		= $(CROSS_COMPILE)nm
