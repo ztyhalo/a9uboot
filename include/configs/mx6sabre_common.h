@@ -112,10 +112,8 @@
 #define CONFIG_CMD_MENU
 
 #define CONFIG_LOADADDR                        0x12000000
-#ifdef _HNDZ_UPDATE_BOOT
-#ifndef CONFIG_SYS_TEXT_BASE
- #define CONFIG_SYS_TEXT_BASE           0x17800000
- #endif
+#ifdef _HNDZ_UBOOT
+#define CONFIG_SYS_TEXT_BASE           0x17800000
 #else
 #define CONFIG_SYS_TEXT_BASE           0x17859000
 #endif
@@ -385,7 +383,7 @@
 #endif
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET		(8 * 64 * 1024)
+#define CONFIG_ENV_OFFSET		(15 * 64 * 1024)
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 #define CONFIG_ENV_OFFSET              (768 * 1024)
 #define CONFIG_ENV_SECT_SIZE           (64 * 1024)
