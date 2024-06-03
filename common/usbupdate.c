@@ -28,6 +28,7 @@ u32 hndz_tlv320_state=0;
 u32 hndz_tca9535_start=0;
 u32 hndz_mcp251x_state=0;
 u32 hndz_platform=0xffffffff;
+int g_sdtype= FS_TYPE_EXT;
 
 enum {
 	HNDZ_MX = 0,
@@ -135,6 +136,7 @@ static int scan_md5_platform(char * md5argv[],int flag,int type,int platform)
 				printf("Identify partition errors!!!\n");
 				return 1;
 			}
+			g_sdtype =  FS_TYPE_EXT;
 			read_file=ext4_read_file;
 		}
 		else if (type==MMC_FAT_DEVICE)
@@ -143,6 +145,7 @@ static int scan_md5_platform(char * md5argv[],int flag,int type,int platform)
 				printf("Identify partition errors!!!\n");
 				return 1;
 			}
+			g_sdtype =  FS_TYPE_FAT;
 			read_file=fat_read_file;
 		}
 		else
@@ -333,6 +336,132 @@ static int uboot_md5_check(int device_types)
 error:
 	printf("md5 check fail state=%d\n",md5state);
 	return 1;
+}
+
+static int mmc_load_update_image(int type)
+{
+
+	int size ;
+	int size1;
+	int (*do_mmc_load)(cmd_tbl_t *cmdtp, int flag, int argc,char *const argv[])=NULL;
+	char fwdir[64];
+	char nxri[128];
+	char *readcmd=(type == MMC_FAT_DEVICE) ? "fatload" : "ext4load";
+	char dev[7];
+	char dev1[7];
+	char addr_str[16];
+	char * const argv[6] = { readcmd, "mmc", dev, addr_str, nxri, NULL };
+	char * const argv1[6] = { "ext4load", "mmc", dev1, addr_str, nxri, NULL };
+
+	cmd_tbl_t *bcmd;
+
+
+
+	if (type==MMC_EXT4_DEVICE)
+		do_mmc_load=do_ext4_load;
+	else
+		do_mmc_load=do_fat_fsload;	
+
+	/* Load the rescue image */
+	bcmd = find_cmd(readcmd);
+	if (!bcmd) {
+		printf(LOG_PREFIX "Error - '%s' command not present.\n",readcmd);
+
+		return 1;
+	}
+
+	sprintf(nxri, "%s", HNDZZ_MD5_NAME);
+	sprintf(dev, "%d:%d", 0, 1);
+	//sprintf(dev, "%d", devno);
+	// sprintf(addr_str, "%lx", addr);
+	// if (do_mmc_load(bcmd, 0, 5, argv) != 0) {
+	// 	printf("mmc no md5 file!\n");
+	// 	return 1;
+	// }
+	// else
+	{
+		// size = getenv_hex("filesize", 0);
+		// USB_DEBUG("usb read veriosn ok %d\n",size);
+		// memcpy(fwdir, (void *)addr, size);
+		/*
+		for(i= 0; i < size; i++)
+		{
+			printf("%c ", fwdir[i]);
+		}
+		printf("\n");
+		*/
+		//
+		// bcmd = find_cmd("ext4load");
+		// if (!bcmd) {
+		// 	printf(LOG_PREFIX "Error - 'ext4load' command not present.\n");
+		// 	return 1;
+		// }
+		// sprintf(nxri, "%s", OPT_MD5_NAME);
+		// sprintf(dev1, "%d:%d", MD5_MMC_DEV, MD5_MMC_DEV_PART);
+		// sprintf(addr_str, "%lx", (ulong)OPT_MD5_LOAD_ADDR);
+		// USB_DEBUG("ext4load device='%s', addr='%s', file: %s\n",dev1, addr_str, nxri);
+		
+		// if (do_ext4_load(bcmd, 0, 5, argv1) != 0) {
+		// 	updatemark = 1;
+		// }
+		// else
+		// {
+		
+		// 	size1 = getenv_hex("filesize", 0);
+		// 	if(size1 != size)
+		// 	{
+		// 		updatemark = 1;
+		// 	}
+		// 	else
+		// 	{
+		// 		printf("wwwwww hndzz_md5_buf[0]-->%s",hndzz_md5_buf[0]);
+		// 		printf("wwwwww hndzz_md5_buf[1]-->%s",hndzz_md5_buf[1]);
+		// 		printf("wwwwww opt_md5_buf[0]-->%s",opt_md5_buf[0]);
+		// 		printf("wwwwww opt_md5_buf[1]-->%s",opt_md5_buf[1]);
+		// 		if((memcmp(hndzz_md5_buf[0], opt_md5_buf[0], strlen(hndzz_md5_buf[0])) != 0)
+		// 			||(memcmp(hndzz_md5_buf[1], opt_md5_buf[1], strlen(hndzz_md5_buf[1])) != 0))
+		// 			updatemark = 1;
+
+		// 	}
+		// }
+		//updatemark = 0;
+		// if(updatemark == 1)  //更新
+		{
+
+			USB_DEBUG("wwwwwwwwwwwwww mmc %s update!\n",readcmd);
+			sprintf(nxri, "%s", UPDATE_KERNEL);
+			sprintf(addr_str, "%lx", (ulong)KERNEL_LOAD_ADDR);
+			
+			USB_DEBUG("%s device='%s', addr='%s', file: %s\n",readcmd,
+				"mmc", addr_str, nxri);
+			if (do_mmc_load(bcmd, 0, 5, argv) != 0) {
+				goto MMCERROR;
+			}
+			sprintf(nxri, "%s", UPDATE_ROOTFS);
+			sprintf(addr_str, "%lx", (ulong)FS_LOAD_ADDR);
+			
+			USB_DEBUG("%s device='%s', addr='%s', file: %s\n",readcmd,
+				"mmc", addr_str, nxri);
+			if (do_mmc_load(bcmd, 0, 5, argv) != 0) {
+				goto MMCERROR;
+			}
+			sprintf(nxri, "%s", UPDATE_DTB);
+			sprintf(addr_str, "%lx", (ulong)DTB_LOAD_ADDR);
+			
+			USB_DEBUG("%s device='%s', addr='%s', file: %s\n",readcmd,
+				"mmc", addr_str, nxri);
+			if (do_mmc_load(bcmd, 0, 5, argv) != 0) {
+				goto MMCERROR;
+			}
+			
+		}	
+	}
+
+	return 0;
+MMCERROR:
+
+	return 1;
+
 }
 
 //usb fat32
@@ -559,6 +688,10 @@ static int load_rescue_image(ulong addr)
 	return 0;
 ERROR:
 	usb_stop();
+	if(updatemark == 1)
+	{
+		return mmc_load_update_image(g_sdtype);
+	}
 	return 1;
 
 }
@@ -730,7 +863,7 @@ void imx6_usbupdate(void)
 		return;
 	}
 
-	printf("\n\nstart scan mmc ext4 part\n");
+	printf("\n\nhndz zty second start scan mmc ext4 part\n");
 	/* Check if we have a USB storage device and load image */
 	if(mmc_load_rescue_image(HNDZZ_MD5_LOAD_ADDR,MMC_EXT4_DEVICE))
 	{

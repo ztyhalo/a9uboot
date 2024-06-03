@@ -112,7 +112,11 @@
 #define CONFIG_CMD_MENU
 
 #define CONFIG_LOADADDR                        0x12000000
+#ifdef _HNDZ_UBOOT
 #define CONFIG_SYS_TEXT_BASE           0x17800000
+#else
+#define CONFIG_SYS_TEXT_BASE           0x17859000
+#endif
 #define CONFIG_SYS_MMC_IMG_LOAD_PART	1
 #define CONFIG_GATEWAYIP				192.168.168.1
 #define CONFIG_IPADDR 					192.168.168.200
@@ -379,7 +383,7 @@
 #endif
 
 #if defined(CONFIG_ENV_IS_IN_MMC)
-#define CONFIG_ENV_OFFSET		(8 * 64 * 1024)
+#define CONFIG_ENV_OFFSET		(15 * 64 * 1024)
 #elif defined(CONFIG_ENV_IS_IN_SPI_FLASH)
 #define CONFIG_ENV_OFFSET              (768 * 1024)
 #define CONFIG_ENV_SECT_SIZE           (64 * 1024)
