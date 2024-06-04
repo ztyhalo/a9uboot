@@ -1301,7 +1301,7 @@ static int get_config (char *fname)
 	char *devname="/dev/mmcblk3";
 
 	memcpy(DEVNAME(0),devname,strlen(devname));
-	DEVOFFSET (0)=0x80000;
+	DEVOFFSET (0)=0xF0000;
 	ENVSIZE (0)=0x2000;
 	DEVESIZE (0)=0x2000;
 	ENVSECTORS (0)=1;

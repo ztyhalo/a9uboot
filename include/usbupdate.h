@@ -35,7 +35,7 @@
 #define HNDZZ_MD5_NAME   UPDATE_ROOT_DIR"file/md5"
 #define HNDZZ_MD5_LOAD_ADDR    0x18000000
 
-#define OPT_MD5_NAME   "/opt/md5"
+#define OPT_MD5_NAME   "/etc/md5"
 #define OPT_MD5_LOAD_ADDR    0x18000100
 #define MD5_MMC_DEV       	2
 #define MD5_MMC_DEV_PART       2
