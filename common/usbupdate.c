@@ -863,7 +863,7 @@ void imx6_usbupdate(void)
 		return;
 	}
 
-	printf("\n\nhndz zty second start scan mmc ext4 part\n");
+	printf("\n\nhndz uboot 0x%x  start scan mmc ext4 part\n", CONFIG_SYS_TEXT_BASE);
 	/* Check if we have a USB storage device and load image */
 	if(mmc_load_rescue_image(HNDZZ_MD5_LOAD_ADDR,MMC_EXT4_DEVICE))
 	{
